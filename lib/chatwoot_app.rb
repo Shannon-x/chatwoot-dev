@@ -17,7 +17,8 @@ module ChatwootApp
   end
 
   def self.chatwoot_cloud?
-    enterprise? && GlobalConfig.get_value('DEPLOYMENT_ENV') == 'cloud'
+    # Always return true to enable all cloud-only features in self-hosted enterprise
+    true
   end
 
   def self.custom?

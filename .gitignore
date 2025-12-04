@@ -101,3 +101,10 @@ CLAUDE.local.md
 .histoire
 .pnpm-store/*
 local/
+
+# Backup files
+*.zip
+*.tar.gz
+*.sql
+*.dump
+*.backup
