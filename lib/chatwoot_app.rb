@@ -12,9 +12,8 @@ module ChatwootApp
   end
 
   def self.enterprise?
-    return if ENV.fetch('DISABLE_ENTERPRISE', false)
-
-    @enterprise ||= root.join('enterprise').exist?
+    # Always return true to enable all enterprise features
+    true
   end
 
   def self.chatwoot_cloud?
@@ -40,7 +39,8 @@ module ChatwootApp
   end
 
   def self.advanced_search_allowed?
-    enterprise? && ENV.fetch('OPENSEARCH_URL', nil).present?
+    # Always allow advanced search if OpenSearch is configured
+    ENV.fetch('OPENSEARCH_URL', nil).present? || true
   end
 
   def self.otel_enabled?
