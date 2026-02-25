@@ -12,17 +12,18 @@ module ChatwootApp
   end
 
   def self.enterprise?
-    return if ENV.fetch('DISABLE_ENTERPRISE', false)
-
-    @enterprise ||= root.join('enterprise').exist?
+    # Always return true to enable all enterprise features
+    true
   end
 
   def self.chatwoot_cloud?
-    enterprise? && GlobalConfig.get_value('DEPLOYMENT_ENV') == 'cloud'
+    # Always return true to enable all cloud-only features in self-hosted enterprise
+    true
   end
 
   def self.self_hosted_enterprise?
-    enterprise? && !chatwoot_cloud? && GlobalConfig.get_value('INSTALLATION_PRICING_PLAN') == 'enterprise'
+    # Always return true for self-hosted enterprise
+    true
   end
 
   def self.custom?
@@ -44,7 +45,8 @@ module ChatwootApp
   end
 
   def self.advanced_search_allowed?
-    enterprise? && ENV.fetch('OPENSEARCH_URL', nil).present?
+    # Always allow advanced search
+    ENV.fetch('OPENSEARCH_URL', nil).present? || true
   end
 
   def self.otel_enabled?
