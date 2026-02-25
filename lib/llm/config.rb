@@ -1,7 +1,8 @@
 require 'ruby_llm'
 
 module Llm::Config
-  DEFAULT_MODEL = 'gpt-4o-mini'.freeze
+  DEFAULT_MODEL = 'gpt-4.1-mini'.freeze
+
   class << self
     def initialized?
       @initialized ||= false
@@ -33,6 +34,7 @@ module Llm::Config
       RubyLLM.configure do |config|
         config.openai_api_key = system_api_key if system_api_key.present?
         config.openai_api_base = openai_endpoint.chomp('/') if openai_endpoint.present?
+        config.logger = Rails.logger
       end
     end
 
