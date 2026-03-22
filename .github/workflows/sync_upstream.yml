@@ -1,0 +1,214 @@
+# =============================================================================
+# Sync Upstream Chatwoot & Preserve Enterprise Unlock
+# =============================================================================
+# This workflow automatically syncs the latest upstream Chatwoot changes
+# into the develop branch while preserving enterprise feature unlocks.
+#
+# Trigger: Daily schedule (03:00 UTC) + manual dispatch
+# Strategy:
+#   1. Merge upstream/master into develop
+#   2. If merge succeeds cleanly, apply enterprise patches and push
+#   3. If merge has conflicts, create an Issue for manual resolution
+# =============================================================================
+
+name: Sync Upstream & Unlock Enterprise
+
+on:
+  schedule:
+    # Run daily at 03:00 UTC (11:00 CST)
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      force_patch:
+        description: 'Force re-apply enterprise patches even without new upstream commits'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  sync-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/chatwoot/chatwoot.git || true
+          git fetch upstream master
+
+      - name: Check for new upstream commits
+        id: check
+        run: |
+          UPSTREAM_HEAD=$(git rev-parse upstream/master)
+          # Check if upstream/master is already an ancestor of develop
+          if git merge-base --is-ancestor upstream/master HEAD; then
+            echo "has_new_commits=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No new upstream commits to merge."
+          else
+            echo "has_new_commits=true" >> $GITHUB_OUTPUT
+            NEW_COMMITS=$(git log HEAD..upstream/master --oneline | wc -l)
+            echo "📦 Found $NEW_COMMITS new upstream commits to merge."
+            echo "   Upstream HEAD: $UPSTREAM_HEAD"
+          fi
+
+      - name: Attempt merge
+        id: merge
+        if: steps.check.outputs.has_new_commits == 'true' || github.event.inputs.force_patch == 'true'
+        run: |
+          if [ "${{ steps.check.outputs.has_new_commits }}" = "true" ]; then
+            if git merge upstream/master --no-edit; then
+              echo "merge_result=success" >> $GITHUB_OUTPUT
+              echo "✅ Merge completed successfully."
+            else
+              echo "merge_result=conflict" >> $GITHUB_OUTPUT
+              echo "❌ Merge has conflicts."
+              git merge --abort
+            fi
+          else
+            echo "merge_result=success" >> $GITHUB_OUTPUT
+            echo "ℹ️ Skipping merge (force_patch only)."
+          fi
+
+      - name: Apply enterprise patches
+        if: steps.merge.outputs.merge_result == 'success'
+        run: |
+          echo "🔓 Applying enterprise unlock patches..."
+
+          # --- Patch chatwoot_app.rb ---
+          ruby -i -e '
+            content = File.read(ARGV[0])
+
+            replacements = {
+              /def self\.enterprise\?\n.*?(?=\n  def self\.|\nend)/m =>
+                "def self.enterprise?\n    # Always return true to enable all enterprise features\n    true\n  end\n",
+              /def self\.chatwoot_cloud\?\n.*?(?=\n  def self\.|\nend)/m =>
+                "def self.chatwoot_cloud?\n    # Always return true to enable all cloud-only features in self-hosted enterprise\n    true\n  end\n",
+              /def self\.self_hosted_enterprise\?\n.*?(?=\n  def self\.|\nend)/m =>
+                "def self.self_hosted_enterprise?\n    # Always return true for self-hosted enterprise\n    true\n  end\n",
+              /def self\.advanced_search_allowed\?\n.*?(?=\n  def self\.|\nend)/m =>
+                "def self.advanced_search_allowed?\n    # Always allow advanced search\n    ENV.fetch(\"OPENSEARCH_URL\", nil).present? || true\n  end\n"
+            }
+
+            replacements.each { |pattern, replacement| content.gsub!(pattern, replacement) }
+            File.write(ARGV[0], content)
+          ' lib/chatwoot_app.rb
+          echo "   ✅ chatwoot_app.rb patched"
+
+          # --- Patch chatwoot_hub.rb ---
+          ruby -i -e '
+            content = File.read(ARGV[0])
+
+            content.gsub!(
+              /def self\.pricing_plan\n.*?(?=\n  def self\.)/m,
+              "def self.pricing_plan\n    # Always return enterprise plan\n    '\''enterprise'\''\n  end\n"
+            )
+            content.gsub!(
+              /def self\.pricing_plan_quantity\n.*?(?=\n  def self\.)/m,
+              "def self.pricing_plan_quantity\n    # Return unlimited quantity\n    100_000\n  end\n"
+            )
+
+            File.write(ARGV[0], content)
+          ' lib/chatwoot_hub.rb
+          echo "   ✅ chatwoot_hub.rb patched"
+
+          # --- Patch features.yml (enable all premium features) ---
+          ruby -e '
+            lines = File.readlines(ARGV[0])
+            i = 0
+            changed = 0
+            while i < lines.length
+              if lines[i] =~ /^(\s*)enabled:\s*false\s*$/
+                indent = $1
+                has_premium = (1..3).any? { |j| i + j < lines.length && lines[i + j] =~ /premium:\s*true/ }
+                if has_premium
+                  lines[i] = "#{indent}enabled: true\n"
+                  changed += 1
+                end
+              end
+              i += 1
+            end
+            File.write(ARGV[0], lines.join)
+            puts "   ✅ features.yml patched (#{changed} premium features enabled)"
+          ' config/features.yml
+
+      - name: Commit and push
+        if: steps.merge.outputs.merge_result == 'success'
+        run: |
+          # Check if there are any changes to commit (patches might have been already applied)
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "ℹ️ No changes to commit (patches already applied or no new code)."
+          else
+            git add -A
+            UPSTREAM_VERSION=$(cat VERSION_CW 2>/dev/null || echo "unknown")
+            git commit -m "feat: sync upstream v${UPSTREAM_VERSION} and re-apply enterprise patches" \
+                        -m "- Merged latest upstream chatwoot/chatwoot changes" \
+                        -m "- Re-applied enterprise feature unlock patches" \
+                        -m "- All premium features enabled"
+            git push origin develop
+            echo "✅ Changes committed and pushed."
+          fi
+
+      - name: Create issue on merge conflict
+        if: steps.merge.outputs.merge_result == 'conflict'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'upstream-sync-conflict'
+            });
+
+            // Don't create duplicate issues
+            if (issues.length > 0) {
+              console.log('Conflict issue already exists, skipping creation.');
+              return;
+            }
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '⚠️ Upstream sync conflict - manual resolution required',
+              body: [
+                '## Upstream Sync Conflict',
+                '',
+                'The automatic upstream sync workflow encountered merge conflicts.',
+                '',
+                '### How to resolve',
+                '```bash',
+                'git fetch upstream',
+                'git checkout develop',
+                'git merge upstream/master',
+                '# Resolve conflicts manually',
+                '# Then re-apply enterprise patches:',
+                './scripts/patch_enterprise.sh',
+                'git add -A',
+                'git commit',
+                'git push origin develop',
+                '```',
+                '',
+                '### Alternative: use the agent workflow',
+                'Run `/merge-upstream` in your AI coding assistant.',
+                '',
+                '_This issue was created automatically by the sync-upstream workflow._'
+              ].join('\n'),
+              labels: ['upstream-sync-conflict']
+            });
