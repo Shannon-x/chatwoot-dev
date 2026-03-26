@@ -46,7 +46,7 @@ module ChatwootApp
 
   def self.advanced_search_allowed?
     # Always allow advanced search
-    ENV.fetch('OPENSEARCH_URL', nil).present? || true
+    ENV.fetch("OPENSEARCH_URL", nil).present? || true
   end
 
   def self.otel_enabled?
