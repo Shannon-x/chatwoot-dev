@@ -31,9 +31,7 @@ class Captain::BaseTaskService
   end
 
   def api_base
-    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value.presence || 'https://api.openai.com/'
-    endpoint = endpoint.chomp('/')
-    "#{endpoint}/v1"
+    LlmConstants.api_base_with_version
   end
 
   def make_api_call(model:, messages:, schema: nil, tools: [])

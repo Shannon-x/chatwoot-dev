@@ -33,8 +33,7 @@ class Llm::LegacyBaseOpenAiService
   end
 
   def uri_base
-    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value
-    endpoint.presence || 'https://api.openai.com/'
+    LlmConstants.api_base_with_version
   end
 
   def setup_model

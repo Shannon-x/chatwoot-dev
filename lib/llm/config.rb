@@ -33,7 +33,7 @@ module Llm::Config
     def configure_ruby_llm
       RubyLLM.configure do |config|
         config.openai_api_key = system_api_key if system_api_key.present?
-        config.openai_api_base = openai_endpoint.chomp('/') if openai_endpoint.present?
+        config.openai_api_base = LlmConstants.api_base_with_version(openai_endpoint) if openai_endpoint.present?
         config.logger = Rails.logger
       end
     end

@@ -76,8 +76,6 @@ module Enterprise::Concerns::Article
   private
 
   def openai_api_url
-    endpoint = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value || 'https://api.openai.com/'
-    endpoint = endpoint.chomp('/')
-    "#{endpoint}/v1/chat/completions"
+    "#{LlmConstants.api_base_with_version}/chat/completions"
   end
 end
