@@ -106,7 +106,7 @@
   premium: true
 - name: custom_tools
   display_name: Custom Tools
-  enabled: false
+  enabled: true
   premium: true
 - name: message_reply_to
   display_name: Message Reply To
