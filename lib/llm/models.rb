@@ -16,7 +16,12 @@ module Llm::Models
     end
 
     def valid_model_for?(feature, model_name)
-      models_for(feature).include?(model_name.to_s)
+      return true if models_for(feature).include?(model_name.to_s)
+
+      # Allow any model whose name matches a known OpenAI prefix so that newly
+      # released models (e.g. gpt-5.5-2026-xx-xx) work without editing llm.yml.
+      openai_prefixes = LlmConstants::PROVIDER_PREFIXES['openai']
+      openai_prefixes.any? { |prefix| model_name.to_s.start_with?(prefix) }
     end
 
     def feature_config(feature_key)
@@ -24,8 +29,10 @@ module Llm::Models
       return nil unless feature
 
       {
-        models: feature['models'].map do |model_name|
+        models: feature['models'].filter_map do |model_name|
           model = models[model_name]
+          next unless model # skip entries not present in the models section
+
           {
             id: model_name,
             display_name: model['display_name'],
