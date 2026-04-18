@@ -7,22 +7,113 @@ aproviders:
     display_name: 'Gemini'
 
 models:
+  # ── GPT-5.x Flagship (250K token group, credit_multiplier: 5) ─────────────
+  gpt-5.4-2026-03-05:
+    provider: openai
+    display_name: 'GPT-5.4 (2026-03-05)'
+    credit_multiplier: 5
+  gpt-5.2-2025-12-11:
+    provider: openai
+    display_name: 'GPT-5.2 (2025-12-11)'
+    credit_multiplier: 5
+  gpt-5.1-2025-11-13:
+    provider: openai
+    display_name: 'GPT-5.1 (2025-11-13)'
+    credit_multiplier: 5
+  gpt-5.1-codex:
+    provider: openai
+    display_name: 'GPT-5.1 Codex'
+    credit_multiplier: 5
+  gpt-5-codex:
+    provider: openai
+    display_name: 'GPT-5 Codex'
+    credit_multiplier: 5
+  gpt-5-2025-08-07:
+    provider: openai
+    display_name: 'GPT-5 (2025-08-07)'
+    credit_multiplier: 5
+  gpt-5-chat-latest:
+    provider: openai
+    display_name: 'GPT-5 Chat (Latest)'
+    credit_multiplier: 5
+
+  # ── GPT-5.x Aliases (generic, tracks latest releases) ─────────────────────
+  gpt-5.4:
+    provider: openai
+    display_name: 'GPT-5.4'
+    credit_multiplier: 5
+  gpt-5.2:
+    provider: openai
+    display_name: 'GPT-5.2'
+    credit_multiplier: 5
+  gpt-5.1:
+    provider: openai
+    display_name: 'GPT-5.1'
+    credit_multiplier: 5
+
+  # ── GPT-4.x Flagship (250K token group, credit_multiplier: 3) ─────────────
+  gpt-4.5-preview-2025-02-27:
+    provider: openai
+    display_name: 'GPT-4.5 Preview (Deprecated)'
+    credit_multiplier: 3
+    deprecated: true
+  gpt-4.1-2025-04-14:
+    provider: openai
+    display_name: 'GPT-4.1 (2025-04-14)'
+    credit_multiplier: 3
   gpt-4.1:
     provider: openai
     display_name: 'GPT-4.1'
     credit_multiplier: 3
-  gpt-4.1-mini:
+  gpt-4o-2024-05-13:
     provider: openai
-    display_name: 'GPT-4.1 Mini'
+    display_name: 'GPT-4o (2024-05-13)'
+    credit_multiplier: 3
+  gpt-4o-2024-08-06:
+    provider: openai
+    display_name: 'GPT-4o (2024-08-06)'
+    credit_multiplier: 3
+  gpt-4o-2024-11-20:
+    provider: openai
+    display_name: 'GPT-4o (2024-11-20)'
+    credit_multiplier: 3
+
+  # ── o-series Reasoning (250K token group, credit_multiplier: 4) ───────────
+  o3-2025-04-16:
+    provider: openai
+    display_name: 'o3 (2025-04-16)'
+    credit_multiplier: 4
+  o1-2024-12-17:
+    provider: openai
+    display_name: 'o1 (2024-12-17)'
+    credit_multiplier: 4
+  o1-preview-2024-09-12:
+    provider: openai
+    display_name: 'o1 Preview (Deprecated)'
+    credit_multiplier: 4
+    deprecated: true
+
+  # ── GPT-5.x Mini/Nano (10M token group, credit_multiplier: 1) ────────────
+  gpt-5.4-mini-2026-03-17:
+    provider: openai
+    display_name: 'GPT-5.4 Mini (2026-03-17)'
     credit_multiplier: 1
-  gpt-4.1-nano:
+  gpt-5.4-nano-2026-03-17:
     provider: openai
-    display_name: 'GPT-4.1 Nano'
+    display_name: 'GPT-5.4 Nano (2026-03-17)'
     credit_multiplier: 1
-  gpt-5.1:
+  gpt-5.1-codex-mini:
     provider: openai
-    display_name: 'GPT-5.1'
-    credit_multiplier: 2
+    display_name: 'GPT-5.1 Codex Mini'
+    credit_multiplier: 1
+  gpt-5-mini-2025-08-07:
+    provider: openai
+    display_name: 'GPT-5 Mini (2025-08-07)'
+    credit_multiplier: 1
+  gpt-5-nano-2025-08-07:
+    provider: openai
+    display_name: 'GPT-5 Nano (2025-08-07)'
+    credit_multiplier: 1
   gpt-5-mini:
     provider: openai
     display_name: 'GPT-5 Mini'
@@ -31,10 +122,44 @@ models:
     provider: openai
     display_name: 'GPT-5 Nano'
     credit_multiplier: 1
-  gpt-5.2:
+
+  # ── GPT-4.x Mini/Nano (10M token group, credit_multiplier: 1) ────────────
+  gpt-4.1-mini-2025-04-14:
     provider: openai
-    display_name: 'GPT-5.2'
-    credit_multiplier: 3
+    display_name: 'GPT-4.1 Mini (2025-04-14)'
+    credit_multiplier: 1
+  gpt-4.1-nano-2025-04-14:
+    provider: openai
+    display_name: 'GPT-4.1 Nano (2025-04-14)'
+    credit_multiplier: 1
+  gpt-4.1-mini:
+    provider: openai
+    display_name: 'GPT-4.1 Mini'
+    credit_multiplier: 1
+  gpt-4.1-nano:
+    provider: openai
+    display_name: 'GPT-4.1 Nano'
+    credit_multiplier: 1
+  gpt-4o-mini-2024-07-18:
+    provider: openai
+    display_name: 'GPT-4o Mini (2024-07-18)'
+    credit_multiplier: 1
+
+  # ── o-series Mini / Codex Mini (10M token group, credit_multiplier: 2) ─────
+  o4-mini-2025-04-16:
+    provider: openai
+    display_name: 'o4 Mini (2025-04-16)'
+    credit_multiplier: 2
+  o1-mini-2024-09-12:
+    provider: openai
+    display_name: 'o1 Mini (2024-09-12)'
+    credit_multiplier: 2
+  codex-mini-latest:
+    provider: openai
+    display_name: 'Codex Mini (Latest)'
+    credit_multiplier: 1
+
+  # ── Anthropic ─────────────────────────────────────────────────────────────
   claude-haiku-4.5:
     provider: anthropic
     display_name: 'Claude Haiku 4.5'
@@ -45,6 +170,8 @@ models:
     display_name: 'Claude Sonnet 4.5'
     coming_soon: true
     credit_multiplier: 3
+
+  # ── Gemini ────────────────────────────────────────────────────────────────
   gemini-3-flash:
     provider: gemini
     display_name: 'Gemini 3 Flash'
@@ -55,6 +182,8 @@ models:
     display_name: 'Gemini 3 Pro'
     coming_soon: true
     credit_multiplier: 3
+
+  # ── Utility models ────────────────────────────────────────────────────────
   whisper-1:
     provider: openai
     display_name: 'Whisper'
@@ -65,53 +194,99 @@ models:
     credit_multiplier: 1
 
 features:
+  # Editor: lightweight models for quick in-editor suggestions
   editor:
     models:
       [
-        gpt-4.1-mini,
         gpt-4.1-nano,
+        gpt-4.1-nano-2025-04-14,
+        gpt-4.1-mini,
+        gpt-4.1-mini-2025-04-14,
         gpt-5-mini,
+        gpt-5-mini-2025-08-07,
+        gpt-5.4-mini-2026-03-17,
+        gpt-5.4-nano-2026-03-17,
         gpt-4.1,
+        gpt-4.1-2025-04-14,
         gpt-5.1,
+        gpt-5.1-2025-11-13,
         gpt-5.2,
+        gpt-5.2-2025-12-11,
         claude-haiku-4.5,
         gemini-3-flash,
         gemini-3-pro,
       ]
     default: gpt-4.1-mini
+
+  # Assistant: mid-to-high tier models for smarter replies
   assistant:
     models:
       [
         gpt-5-mini,
+        gpt-5-mini-2025-08-07,
         gpt-4.1,
+        gpt-4.1-2025-04-14,
         gpt-5.1,
+        gpt-5.1-2025-11-13,
+        gpt-5.1-codex,
         gpt-5.2,
+        gpt-5.2-2025-12-11,
+        gpt-5.4-2026-03-05,
+        gpt-5-chat-latest,
+        o4-mini-2025-04-16,
+        o3-2025-04-16,
         claude-haiku-4.5,
         claude-sonnet-4.5,
         gemini-3-flash,
         gemini-3-pro,
       ]
     default: gpt-5.1
+
+  # Copilot: same as assistant, full model range for agent use
   copilot:
     models:
       [
         gpt-5-mini,
+        gpt-5-mini-2025-08-07,
+        gpt-5.1-codex-mini,
+        codex-mini-latest,
         gpt-4.1,
+        gpt-4.1-2025-04-14,
         gpt-5.1,
+        gpt-5.1-2025-11-13,
+        gpt-5.1-codex,
+        gpt-5-codex,
         gpt-5.2,
+        gpt-5.2-2025-12-11,
+        gpt-5.4-2026-03-05,
+        gpt-5-chat-latest,
+        o4-mini-2025-04-16,
+        o3-2025-04-16,
         claude-haiku-4.5,
         claude-sonnet-4.5,
         gemini-3-flash,
         gemini-3-pro,
       ]
     default: gpt-5.1
+
+  # Label suggestion: cheapest/fastest models only
   label_suggestion:
     models:
-      [gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini, gemini-3-flash, claude-haiku-4.5]
+      [
+        gpt-4.1-nano,
+        gpt-4.1-nano-2025-04-14,
+        gpt-4.1-mini,
+        gpt-5-mini,
+        gpt-5.4-nano-2026-03-17,
+        gemini-3-flash,
+        claude-haiku-4.5,
+      ]
     default: gpt-4.1-nano
+
   audio_transcription:
     models: [whisper-1]
     default: whisper-1
+
   help_center_search:
     models: [text-embedding-3-small]
     default: text-embedding-3-small
