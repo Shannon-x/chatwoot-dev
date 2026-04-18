@@ -12,6 +12,10 @@ module Llm::Config
       return if @initialized
 
       configure_ruby_llm
+      # Force the global Models singleton to use our llm_models.json.
+      # RubyLLM may have auto-created the singleton from its bundled registry
+      # before we ran configure, so we explicitly reload it here.
+      RubyLLM::Models.instance.load_from_json!(Rails.root.join('config/llm_models.json').to_s)
       @initialized = true
     end
 
@@ -21,9 +25,13 @@ module Llm::Config
 
     def with_api_key(api_key, api_base: nil)
       initialize!
+      registry_file = Rails.root.join('config/llm_models.json').to_s
       context = RubyLLM.context do |config|
         config.openai_api_key = api_key
         config.openai_api_base = api_base
+        # Explicitly set in every context so new models in our llm_models.json
+        # are always used regardless of when the global singleton was initialized.
+        config.model_registry_file = registry_file
       end
 
       yield context
