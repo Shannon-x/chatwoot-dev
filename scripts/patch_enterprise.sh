@@ -36,7 +36,7 @@ echo ""
 echo "1️⃣  Patching chatwoot_app.rb ..."
 
 # Use Ruby to patch the file in-place for reliability
-ruby -i -e '
+ruby -i -E UTF-8 -e '
   content = File.read(ARGV[0])
 
   # Patch enterprise? method
@@ -80,7 +80,7 @@ fi
 echo ""
 echo "2️⃣  Patching chatwoot_hub.rb ..."
 
-ruby -i -e '
+ruby -i -E UTF-8 -e '
   content = File.read(ARGV[0])
 
   # Patch pricing_plan method
@@ -114,7 +114,7 @@ echo "3️⃣  Patching features.yml (enabling all premium features) ..."
 
 # Use Ruby/YAML-aware approach: for every feature with premium: true,
 # set enabled: true
-ruby -e '
+ruby -E UTF-8 -e '# encoding: UTF-8' -e '
   lines = File.readlines(ARGV[0])
   i = 0
   changed = 0
@@ -132,7 +132,7 @@ ruby -e '
     i += 1
   end
   File.write(ARGV[0], lines.join)
-  puts "   ✅ features.yml patched (#{changed} premium features enabled)"
+  puts "   [OK] features.yml patched (#{changed} premium features enabled)"
 ' "$FEATURES_YML"
 
 # ---------------------------------------------------------------------------
