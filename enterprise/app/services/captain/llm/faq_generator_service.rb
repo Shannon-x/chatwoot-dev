@@ -7,7 +7,6 @@ class Captain::Llm::FaqGeneratorService < Llm::BaseAiService
     @content = document.content
     @language = document.account.locale_english_name
     @account_id = document.account_id
-    @model = selected_model_for(document.account, 'assistant', fallback: @model)
   end
 
   def generate

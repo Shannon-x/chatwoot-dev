@@ -5,7 +5,6 @@ class Captain::Llm::ContactNotesService < Llm::BaseAiService
     super()
     @assistant = assistant
     @conversation = conversation
-    @model = selected_model_for(@assistant.account, 'assistant', fallback: @model)
     @contact = conversation.contact
     @content = "#Contact\n\n#{@contact.to_llm_text} \n\n#Conversation\n\n#{@conversation.to_llm_text}"
   end

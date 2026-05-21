@@ -33,7 +33,7 @@ class Captain::FollowUpService < Captain::BaseTaskService
       { role: 'user', content: user_message }
     ]
 
-    response = make_api_call(model: selected_model_for(follow_up_feature), messages: messages)
+    response = make_api_call(model: GPT_MODEL, messages: messages)
     return response if response[:error]
 
     response.merge(follow_up_context: update_follow_up_context(user_message, response[:message]))
@@ -69,10 +69,6 @@ class Captain::FollowUpService < Captain::BaseTaskService
     else
       event_name
     end
-  end
-
-  def follow_up_feature
-    follow_up_context['event_name'] == 'label_suggestion' ? 'label_suggestion' : 'editor'
   end
 
   def valid_follow_up_context?

@@ -1,4 +1,4 @@
-providers:
+aproviders:
   openai:
     display_name: 'OpenAI'
   anthropic:
@@ -170,10 +170,6 @@ models:
     display_name: 'Claude Sonnet 4.5'
     coming_soon: true
     credit_multiplier: 3
-  claude-jupiter-v1-p:
-    provider: anthropic
-    display_name: 'Claude Jupiter V1 P'
-    credit_multiplier: 5
 
   # ── Gemini ────────────────────────────────────────────────────────────────
   gemini-3-flash:
@@ -216,7 +212,6 @@ features:
         gpt-5.1-2025-11-13,
         gpt-5.2,
         gpt-5.2-2025-12-11,
-        claude-jupiter-v1-p,
         claude-haiku-4.5,
         gemini-3-flash,
         gemini-3-pro,
@@ -238,7 +233,6 @@ features:
         gpt-5.2-2025-12-11,
         gpt-5.4-2026-03-05,
         gpt-5-chat-latest,
-        claude-jupiter-v1-p,
         o4-mini-2025-04-16,
         o3-2025-04-16,
         claude-haiku-4.5,
@@ -266,7 +260,6 @@ features:
         gpt-5.2-2025-12-11,
         gpt-5.4-2026-03-05,
         gpt-5-chat-latest,
-        claude-jupiter-v1-p,
         o4-mini-2025-04-16,
         o3-2025-04-16,
         claude-haiku-4.5,
@@ -285,7 +278,6 @@ features:
         gpt-4.1-mini,
         gpt-5-mini,
         gpt-5.4-nano-2026-03-17,
-        claude-jupiter-v1-p,
         gemini-3-flash,
         claude-haiku-4.5,
       ]

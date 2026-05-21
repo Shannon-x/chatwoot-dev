@@ -69,10 +69,7 @@ class Captain::Llm::WidgetTaglineService < Captain::BaseTaskService
   end
 
   def tagline_model
-    @tagline_model ||= selected_model_for(
-      'assistant',
-      fallback: InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence || GPT_MODEL
-    )
+    @tagline_model ||= InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence || GPT_MODEL
   end
 
   def build_follow_up_context?

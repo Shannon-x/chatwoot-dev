@@ -3,7 +3,7 @@ class Captain::ReplySuggestionService < Captain::BaseTaskService
 
   def perform
     make_api_call(
-      model: selected_model_for('editor'),
+      model: GPT_MODEL,
       messages: [
         { role: 'system', content: system_prompt },
         { role: 'user', content: formatted_conversation }

@@ -1235,53 +1235,6 @@
     }
   },
   {
-    "id": "claude-jupiter-v1-p",
-    "name": "Claude Jupiter V1 P",
-    "provider": "openai",
-    "family": "claude-jupiter",
-    "created_at": null,
-    "context_window": 200000,
-    "max_output_tokens": 64000,
-    "knowledge_cutoff": null,
-    "modalities": {
-      "input": [
-        "text"
-      ],
-      "output": [
-        "text"
-      ]
-    },
-    "capabilities": [
-      "function_calling",
-      "reasoning"
-    ],
-    "pricing": {
-      "text_tokens": {
-        "standard": {
-          "input_per_million": 15,
-          "output_per_million": 75
-        }
-      }
-    },
-    "metadata": {
-      "source": "custom",
-      "provider_id": "openai",
-      "open_weights": false,
-      "attachment": false,
-      "temperature": true,
-      "last_updated": "2026-05-21",
-      "cost": {
-        "input": 15,
-        "output": 75
-      },
-      "limit": {
-        "context": 200000,
-        "output": 64000
-      },
-      "knowledge": null
-    }
-  },
-  {
     "id": "AI21-Jamba-1.5-Large",
     "name": "AI21-Jamba-1.5-Large",
     "provider": "azure",

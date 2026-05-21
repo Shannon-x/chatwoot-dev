@@ -34,10 +34,7 @@ class Captain::Llm::ArticleTranslationService < Captain::BaseTaskService
   end
 
   def translation_model
-    @translation_model ||= selected_model_for(
-      'assistant',
-      fallback: InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence || GPT_MODEL
-    )
+    @translation_model ||= InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence || GPT_MODEL
   end
 
   def title_system_prompt

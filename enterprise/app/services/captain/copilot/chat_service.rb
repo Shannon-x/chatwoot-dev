@@ -8,7 +8,6 @@ class Captain::Copilot::ChatService < Llm::BaseAiService
 
     @assistant = assistant
     @account = assistant.account
-    @model = selected_model_for(@account, 'copilot', fallback: @model)
     @user = nil
     @copilot_thread = nil
     @previous_history = []

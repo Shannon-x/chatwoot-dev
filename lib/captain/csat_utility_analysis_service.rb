@@ -3,7 +3,7 @@ class Captain::CsatUtilityAnalysisService < Captain::BaseTaskService
 
   def perform
     api_response = make_api_call(
-      model: selected_model_for('editor'),
+      model: GPT_MODEL,
       messages: [
         { role: 'system', content: system_prompt },
         { role: 'user', content: message }

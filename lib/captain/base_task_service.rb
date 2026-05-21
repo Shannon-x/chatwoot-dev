@@ -35,13 +35,6 @@ class Captain::BaseTaskService
     LlmConstants.api_base_with_version
   end
 
-  def selected_model_for(feature, fallback: GPT_MODEL)
-    stored_model = account&.captain_models&.[](feature.to_s)
-    return stored_model if stored_model.present? && Llm::Models.valid_model_for?(feature, stored_model)
-
-    fallback
-  end
-
   def make_api_call(model:, messages:, schema: nil, tools: [])
     # Community edition prerequisite checks
     # Enterprise module handles these with more specific error messages (cloud vs self-hosted)

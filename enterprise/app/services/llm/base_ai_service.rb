@@ -18,13 +18,6 @@ class Llm::BaseAiService
     RubyLLM.chat(model: model).with_temperature(temperature)
   end
 
-  def selected_model_for(account, feature, fallback: @model)
-    stored_model = account&.captain_models&.[](feature.to_s)
-    return stored_model if stored_model.present? && Llm::Models.valid_model_for?(feature, stored_model)
-
-    fallback
-  end
-
   private
 
   # Strips markdown code fences (```json ... ``` or ``` ... ```) that some
