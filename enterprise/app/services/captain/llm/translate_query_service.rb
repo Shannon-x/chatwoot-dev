@@ -11,7 +11,7 @@ class Captain::Llm::TranslateQueryService < Captain::BaseTaskService
       { role: 'user', content: query }
     ]
 
-    response = make_api_call(model: MODEL, messages: messages)
+    response = make_api_call(model: selected_model_for('assistant', fallback: MODEL), messages: messages)
     return query if response[:error]
 
     response[:message].strip

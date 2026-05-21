@@ -8,6 +8,7 @@ class Captain::Llm::AssistantChatService < Llm::BaseAiService
     @conversation = conversation
     @conversation_id = conversation&.display_id
     @source = source
+    @model = selected_model_for(@assistant.account, 'assistant', fallback: @model) if @assistant
 
     @messages = [system_message]
     @response = ''

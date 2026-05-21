@@ -7,6 +7,7 @@ class Captain::Llm::AssistantActionClassifierService < Llm::BaseAiService
     super()
     @assistant = assistant
     @conversation = conversation
+    @model = selected_model_for(@assistant.account, 'assistant', fallback: @model)
     @temperature = 0.0
   end
 

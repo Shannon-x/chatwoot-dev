@@ -7,6 +7,7 @@ class Captain::Llm::ConversationFaqService < Llm::BaseAiService
     super()
     @assistant = assistant
     @conversation = conversation
+    @model = selected_model_for(@assistant.account, 'assistant', fallback: @model)
     @content = conversation.to_llm_text
   end
 
