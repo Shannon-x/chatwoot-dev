@@ -16,19 +16,16 @@ module ChatwootApp
     true
   end
 
-  
   def self.chatwoot_cloud?
     # Always return true to enable all cloud-only features in self-hosted enterprise
     true
   end
 
-  
   def self.self_hosted_enterprise?
     # Always return true for self-hosted enterprise
     true
   end
 
-  
   def self.custom?
     @custom ||= root.join('custom').exist?
   end
@@ -52,7 +49,6 @@ module ChatwootApp
     ENV.fetch("OPENSEARCH_URL", nil).present? || true
   end
 
-  
   def self.otel_enabled?
     otel_provider = InstallationConfig.find_by(name: 'OTEL_PROVIDER')&.value
     secret_key = InstallationConfig.find_by(name: 'LANGFUSE_SECRET_KEY')&.value

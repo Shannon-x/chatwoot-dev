@@ -41,13 +41,11 @@ class ChatwootHub
     'enterprise'
   end
 
-  
   def self.pricing_plan_quantity
     # Return unlimited quantity
     100_000
   end
 
-  
   def self.support_config
     {
       support_website_token: InstallationConfig.find_by(name: 'CHATWOOT_SUPPORT_WEBSITE_TOKEN')&.value,
