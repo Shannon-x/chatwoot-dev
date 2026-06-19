@@ -151,18 +151,33 @@ jobs:
       - name: Commit and push
         if: steps.merge.outputs.merge_result == 'success'
         run: |
-          # Check if there are any changes to commit (patches might have been already applied)
+          UPSTREAM_VERSION=$(cat VERSION_CW 2>/dev/null || echo "unknown")
+
+          # Step 1: commit any working-tree changes produced by the patch step
+          # (re-applied enterprise patches that the merge didn't already preserve).
           if git diff --quiet && git diff --cached --quiet; then
-            echo "ℹ️ No changes to commit (patches already applied or no new code)."
+            echo "ℹ️ No patch changes to commit (enterprise patches already preserved by merge)."
           else
             git add -A
-            UPSTREAM_VERSION=$(cat VERSION_CW 2>/dev/null || echo "unknown")
-            git commit -m "feat: sync upstream v${UPSTREAM_VERSION} and re-apply enterprise patches" \
-                        -m "- Merged latest upstream chatwoot/chatwoot changes" \
+            git commit -m "feat: re-apply enterprise patches for v${UPSTREAM_VERSION}" \
                         -m "- Re-applied enterprise feature unlock patches" \
                         -m "- All premium features enabled"
+            echo "✅ Patch changes committed."
+          fi
+
+          # Step 2: ALWAYS check whether local develop is ahead of origin/develop.
+          # This is the critical fix: the merge step already created a merge commit
+          # (git merge --no-edit auto-commits), which leaves a clean working tree.
+          # The old logic only checked `git diff` and therefore skipped pushing the
+          # merge commit entirely — upstream commits were merged in CI but never pushed.
+          git fetch origin develop
+          AHEAD=$(git rev-list --count origin/develop..HEAD)
+          if [ "$AHEAD" -gt 0 ]; then
+            echo "📤 Local develop is ahead of origin by ${AHEAD} commit(s). Pushing..."
             git push origin develop
-            echo "✅ Changes committed and pushed."
+            echo "✅ Pushed ${AHEAD} commit(s) to origin/develop."
+          else
+            echo "ℹ️ Nothing to push — origin/develop already up to date."
           fi
 
       - name: Create issue on merge conflict
