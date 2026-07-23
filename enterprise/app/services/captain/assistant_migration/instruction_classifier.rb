@@ -1,6 +1,6 @@
 class Captain::AssistantMigration::InstructionClassifier < Captain::BaseTaskService
   RESPONSE_SCHEMA = Captain::AssistantMigration::InstructionClassifierSchema
-  CLASSIFIER_MODEL = 'gpt-5.2'.freeze
+  CLASSIFIER_MODEL = 'gpt-5.4-nano-2026-03-17'.freeze
   MAX_INSTRUCTIONS_LENGTH = 20_000
 
   pattr_initialize [:assistant!]

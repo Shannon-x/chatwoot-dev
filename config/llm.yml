@@ -202,6 +202,7 @@ features:
   editor:
     models:
       [
+        gpt-5.4-nano-2026-03-17,
         gpt-4.1-nano,
         gpt-4.1-nano-2025-04-14,
         gpt-4.1-mini,
@@ -209,7 +210,6 @@ features:
         gpt-5-mini,
         gpt-5-mini-2025-08-07,
         gpt-5.4-mini-2026-03-17,
-        gpt-5.4-nano-2026-03-17,
         gpt-4.1,
         gpt-4.1-2025-04-14,
         gpt-5.1,
@@ -220,12 +220,13 @@ features:
         gemini-3-flash,
         gemini-3-pro,
       ]
-    default: gpt-4.1-mini
+    default: gpt-5.4-nano-2026-03-17
 
   # Assistant: mid-to-high tier models for smarter replies
   assistant:
     models:
       [
+        gpt-5.4-nano-2026-03-17,
         gpt-4.1-mini,
         gpt-5-mini,
         gpt-5-mini-2025-08-07,
@@ -245,12 +246,13 @@ features:
         gemini-3-flash,
         gemini-3-pro,
       ]
-    default: gpt-5.1
+    default: gpt-5.4-nano-2026-03-17
 
   # Copilot: same as assistant, full model range for agent use
   copilot:
     models:
       [
+        gpt-5.4-nano-2026-03-17,
         gpt-4.1-mini,
         gpt-5-mini,
         gpt-5-mini-2025-08-07,
@@ -273,26 +275,27 @@ features:
         gemini-3-flash,
         gemini-3-pro,
       ]
-    default: gpt-5.1
+    default: gpt-5.4-nano-2026-03-17
 
   # Label suggestion: cheapest/fastest models only
   label_suggestion:
     models:
       [
+        gpt-5.4-nano-2026-03-17,
         gpt-4.1-nano,
         gpt-4.1-nano-2025-04-14,
         gpt-4.1-mini,
         gpt-5-mini,
-        gpt-5.4-nano-2026-03-17,
         gemini-3-flash,
         claude-haiku-4.5,
       ]
-    default: gpt-4.1-mini
+    default: gpt-5.4-nano-2026-03-17
 
   # FAQ / content generation (upstream v4.16.0 features)
   document_faq_generation:
     models:
       [
+        gpt-5.4-nano-2026-03-17,
         gpt-4.1-mini,
         gpt-5-mini,
         gpt-4.1,
@@ -303,10 +306,11 @@ features:
         gemini-3-flash,
         gemini-3-pro,
       ]
-    default: gpt-4.1-mini
+    default: gpt-5.4-nano-2026-03-17
   conversation_faq_generation:
     models:
       [
+        gpt-5.4-nano-2026-03-17,
         gpt-4.1-mini,
         gpt-5-mini,
         gpt-4.1,
@@ -317,13 +321,14 @@ features:
         gemini-3-flash,
         gemini-3-pro,
       ]
-    default: gpt-5.2
+    default: gpt-5.4-nano-2026-03-17
   pdf_faq_generation:
-    models: [gpt-4.1-mini, gpt-5-mini, gpt-4.1, gpt-5.1, gpt-5.2]
-    default: gpt-4.1-mini
+    models: [gpt-5.4-nano-2026-03-17, gpt-4.1-mini, gpt-5-mini, gpt-4.1, gpt-5.1, gpt-5.2]
+    default: gpt-5.4-nano-2026-03-17
   help_center_article_generation:
     models:
       [
+        gpt-5.4-nano-2026-03-17,
         gpt-4.1-mini,
         gpt-5-mini,
         gpt-4.1,
@@ -334,14 +339,14 @@ features:
         gemini-3-flash,
         gemini-3-pro,
       ]
-    default: gpt-5.2
+    default: gpt-5.4-nano-2026-03-17
   onboarding_content_generation:
     models:
-      [gpt-4.1, gpt-4.1-mini, gpt-5-mini, gpt-5.1, gpt-5.2]
-    default: gpt-4.1
+      [gpt-5.4-nano-2026-03-17, gpt-4.1, gpt-4.1-mini, gpt-5-mini, gpt-5.1, gpt-5.2]
+    default: gpt-5.4-nano-2026-03-17
   help_center_query_translation:
-    models: [gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini]
-    default: gpt-4.1-nano
+    models: [gpt-5.4-nano-2026-03-17, gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini]
+    default: gpt-5.4-nano-2026-03-17
 
   audio_transcription:
     models: [gpt-4o-mini-transcribe, whisper-1]

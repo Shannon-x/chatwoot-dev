@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module LlmConstants
-  DEFAULT_MODEL = 'gpt-4.1'
+  DEFAULT_MODEL = 'gpt-5.4-nano-2026-03-17'
   DEFAULT_EMBEDDING_MODEL = 'text-embedding-3-small'
-  PDF_PROCESSING_MODEL = 'gpt-4.1-mini'
+  PDF_PROCESSING_MODEL = 'gpt-5.4-nano-2026-03-17'
 
   OPENAI_API_ENDPOINT = 'https://api.openai.com'
 

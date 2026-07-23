@@ -1,7 +1,7 @@
 module Llm::FeatureRouter
   class UnknownFeatureError < StandardError; end
 
-  CAPTAIN_V2_ASSISTANT_MODEL = 'gpt-5.2'.freeze
+  CAPTAIN_V2_ASSISTANT_MODEL = 'gpt-5.4-nano-2026-03-17'.freeze
 
   class << self
     def resolve(feature:, account: nil)

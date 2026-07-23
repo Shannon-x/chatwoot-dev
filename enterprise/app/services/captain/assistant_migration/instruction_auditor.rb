@@ -1,5 +1,5 @@
 class Captain::AssistantMigration::InstructionAuditor < Captain::BaseTaskService
-  AUDITOR_MODEL = 'gpt-5.2'.freeze
+  AUDITOR_MODEL = 'gpt-5.4-nano-2026-03-17'.freeze
   pattr_initialize [:assistant!, :source_payload!, :draft!, :available_additions!]
 
   def perform
