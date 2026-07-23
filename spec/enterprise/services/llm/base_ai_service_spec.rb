@@ -34,7 +34,7 @@ RSpec.describe Llm::BaseAiService do
       create(:installation_config, name: 'CAPTAIN_OPEN_AI_MODEL', value: 'gpt-4.1-nano')
       account.enable_features!('captain_integration_v2')
 
-      expect(described_class.new(feature: 'assistant', account: account).model).to eq('gpt-5.2')
+      expect(described_class.new(feature: 'assistant', account: account).model).to eq('gpt-5.4-nano-2026-03-17')
       expect(account.reload.captain_models).to be_nil
     end
 

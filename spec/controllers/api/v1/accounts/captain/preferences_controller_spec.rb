@@ -81,7 +81,7 @@ RSpec.describe 'Api::V1::Accounts::Captain::Preferences', type: :request do
         )
       end
 
-      it 'returns GPT-5.2 as the assistant default for V2 accounts' do
+      it 'returns the Captain V2 assistant default for V2 accounts' do
         account.enable_features!('captain_integration_v2')
 
         get "/api/v1/accounts/#{account.id}/captain/preferences",

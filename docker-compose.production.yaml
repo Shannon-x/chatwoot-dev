@@ -2,13 +2,8 @@ version: '3'
 
 services:
   base: &base
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-      args:
-        RAILS_ENV: production
-        BUNDLE_WITHOUT: "development:test"
-    image: chatwoot-enterprise:local
+    image: ghcr.io/shannon-x/chatwoot-dev:develop
+    pull_policy: always
     env_file: .env
     volumes:
       - storage_data:/app/storage
@@ -17,6 +12,7 @@ services:
 
   rails:
     <<: *base
+    container_name: chatwoot-web
     ports:
       - '127.0.0.1:3000:3000'
     environment:
@@ -29,6 +25,7 @@ services:
 
   sidekiq:
     <<: *base
+    container_name: chatwoot-sidekiq
     environment:
       - NODE_ENV=production
       - RAILS_ENV=production

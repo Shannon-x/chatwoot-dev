@@ -26,9 +26,9 @@ RSpec.describe Llm::Models do
       end
     end
 
-    it 'routes document and conversation FAQ generation independently' do
-      expect(described_class.default_model_for('document_faq_generation')).to eq('gpt-4.1-mini')
-      expect(described_class.default_model_for('conversation_faq_generation')).to eq('gpt-5.2')
+    it 'resolves the nano default for FAQ generation features' do
+      expect(described_class.default_model_for('document_faq_generation')).to eq('gpt-5.4-nano-2026-03-17')
+      expect(described_class.default_model_for('conversation_faq_generation')).to eq('gpt-5.4-nano-2026-03-17')
     end
   end
 
@@ -49,10 +49,10 @@ RSpec.describe Llm::Models do
     it 'returns model metadata for a feature' do
       config = described_class.feature_config('editor')
 
-      expect(config[:default]).to eq('gpt-4.1-mini')
+      expect(config[:default]).to eq('gpt-5.4-nano-2026-03-17')
       expect(config[:models].first).to include(
-        id: 'gpt-4.1-mini',
-        display_name: 'GPT-4.1 Mini',
+        id: 'gpt-5.4-nano-2026-03-17',
+        display_name: 'GPT-5.4 Nano (2026-03-17)',
         provider: 'openai',
         credit_multiplier: 1
       )

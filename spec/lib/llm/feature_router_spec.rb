@@ -12,7 +12,7 @@ RSpec.describe Llm::FeatureRouter do
       expect(resolved).to eq(
         feature: 'editor',
         provider: 'openai',
-        model: 'gpt-4.1-mini',
+        model: 'gpt-5.4-nano-2026-03-17',
         source: :default
       )
     end
@@ -30,7 +30,7 @@ RSpec.describe Llm::FeatureRouter do
       )
     end
 
-    it 'resolves GPT-5.2 as the assistant default when Captain V2 is enabled without storing an account override' do
+    it 'resolves GPT-5.4 Nano as the assistant default when Captain V2 is enabled without storing an account override' do
       account.enable_features!('captain_integration_v2')
 
       resolved = described_class.resolve(feature: 'assistant', account: account)
@@ -38,7 +38,7 @@ RSpec.describe Llm::FeatureRouter do
       expect(resolved).to include(
         feature: 'assistant',
         provider: 'openai',
-        model: 'gpt-5.2',
+        model: 'gpt-5.4-nano-2026-03-17',
         source: :default
       )
       expect(account.reload.captain_models).to be_nil
@@ -62,7 +62,7 @@ RSpec.describe Llm::FeatureRouter do
       resolved = described_class.resolve(feature: 'editor', account: account)
 
       expect(resolved).to include(
-        model: 'gpt-4.1-mini',
+        model: 'gpt-5.4-nano-2026-03-17',
         source: :default
       )
     end
@@ -73,7 +73,7 @@ RSpec.describe Llm::FeatureRouter do
       resolved = described_class.resolve(feature: 'editor', account: account)
 
       expect(resolved).to include(
-        model: 'gpt-4.1-mini',
+        model: 'gpt-5.4-nano-2026-03-17',
         source: :default
       )
     end

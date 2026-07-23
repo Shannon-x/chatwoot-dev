@@ -31,12 +31,12 @@ RSpec.describe Captain::Llm::AssistantFalsePromiseService do
     it 'uses the detector model even when the assistant feature model is overridden' do
       account.update!(captain_models: { 'assistant' => 'gpt-5-mini' })
 
-      expect(RubyLLM).to receive(:chat).with(model: 'gpt-5.2').and_return(mock_chat)
+      expect(RubyLLM).to receive(:chat).with(model: 'gpt-5.4-nano-2026-03-17').and_return(mock_chat)
       allow(mock_chat).to receive(:ask).and_return(mock_response)
 
       result = service.detect(message_history: message_history, assistant_response: 'Try restarting the app.')
 
-      expect(result).to include('model' => 'gpt-5.2')
+      expect(result).to include('model' => 'gpt-5.4-nano-2026-03-17')
     end
 
     it 'uses the false promise schema and detector prompt' do
