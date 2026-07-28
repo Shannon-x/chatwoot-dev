@@ -29,6 +29,7 @@ RSpec.describe Llm::Models do
     it 'resolves the nano default for FAQ generation features' do
       expect(described_class.default_model_for('document_faq_generation')).to eq('gpt-5.4-nano-2026-03-17')
       expect(described_class.default_model_for('conversation_faq_generation')).to eq('gpt-5.4-nano-2026-03-17')
+      expect(described_class.default_model_for('conversation_faq_matching')).to eq('gpt-5.4-nano-2026-03-17')
     end
   end
 
