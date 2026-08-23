@@ -180,50 +180,69 @@ jobs:
             echo "ℹ️ Nothing to push — origin/develop already up to date."
           fi
 
-      - name: Create issue on merge conflict
+      - name: Notify on merge conflict
         if: steps.merge.outputs.merge_result == 'conflict'
         uses: actions/github-script@v7
         with:
           script: |
-            const { data: issues } = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              labels: 'upstream-sync-conflict'
-            });
+            const howTo = [
+              '## ⚠️ Upstream Sync Conflict — manual resolution required',
+              '',
+              'The automatic upstream sync workflow encountered merge conflicts and could not merge automatically.',
+              '',
+              '### How to resolve',
+              '```bash',
+              'git fetch upstream',
+              'git checkout develop',
+              'git merge upstream/master',
+              '# Resolve conflicts manually',
+              '# Then re-apply enterprise patches:',
+              './scripts/patch_enterprise.sh',
+              'git add -A',
+              'git commit',
+              'git push origin develop',
+              '```',
+              '',
+              '### Alternative: use the agent workflow',
+              'Run `/merge-upstream` in your AI coding assistant.',
+            ].join('\n');
 
-            // Don't create duplicate issues
-            if (issues.length > 0) {
-              console.log('Conflict issue already exists, skipping creation.');
-              return;
+            // Always surface the conflict in the run summary + a workflow warning,
+            // so it is visible even when the repository has Issues disabled.
+            await core.summary.addRaw(howTo).write();
+            core.warning('Upstream sync conflict — manual resolution required. See the job summary for steps.');
+
+            // Best-effort: also open a tracking Issue, but never fail the job if
+            // Issues are disabled (HTTP 410) or the token lacks permission.
+            try {
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: 'upstream-sync-conflict'
+              });
+
+              if (issues.length > 0) {
+                console.log('Conflict issue already exists, skipping creation.');
+                return;
+              }
+
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '⚠️ Upstream sync conflict - manual resolution required',
+                body: howTo + '\n\n_This issue was created automatically by the sync-upstream workflow._',
+                labels: ['upstream-sync-conflict']
+              });
+            } catch (error) {
+              console.log(`Skipping Issue creation: ${error.message}`);
             }
 
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: '⚠️ Upstream sync conflict - manual resolution required',
-              body: [
-                '## Upstream Sync Conflict',
-                '',
-                'The automatic upstream sync workflow encountered merge conflicts.',
-                '',
-                '### How to resolve',
-                '```bash',
-                'git fetch upstream',
-                'git checkout develop',
-                'git merge upstream/master',
-                '# Resolve conflicts manually',
-                '# Then re-apply enterprise patches:',
-                './scripts/patch_enterprise.sh',
-                'git add -A',
-                'git commit',
-                'git push origin develop',
-                '```',
-                '',
-                '### Alternative: use the agent workflow',
-                'Run `/merge-upstream` in your AI coding assistant.',
-                '',
-                '_This issue was created automatically by the sync-upstream workflow._'
-              ].join('\n'),
-              labels: ['upstream-sync-conflict']
-            });
+      # Fail the job (visibly) only after the conflict has been reported, so the
+      # run status reflects that action is needed — without the reporting step
+      # itself crashing when Issues are disabled.
+      - name: Mark run as needing attention
+        if: steps.merge.outputs.merge_result == 'conflict'
+        run: |
+          echo "::error::Upstream sync conflict — merge could not be completed automatically. See job summary."
+          exit 1
