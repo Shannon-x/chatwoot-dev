@@ -198,19 +198,18 @@ models:
     credit_multiplier: 1
 
 features:
-  # conversation_completion: upstream v4.17.0 internal feature (not user-facing),
-  # kept at upstream defaults — the nano routing customization only targets
-  # user-facing FAQ/assistant/copilot features.
+  # conversation_completion: upstream v4.17.0 internal feature, routed to gpt-5.4-nano
   conversation_completion:
     models:
       [
+        gpt-5.4-nano-2026-03-17,
         gpt-4.1-mini,
         gpt-5-mini,
         gpt-4.1,
         gpt-5.1,
         gpt-5.2,
       ]
-    default: gpt-4.1
+    default: gpt-5.4-nano-2026-03-17
     internal: true
   # Editor: lightweight models for quick in-editor suggestions
   editor:
