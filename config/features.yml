@@ -276,6 +276,6 @@
 - name: audit_log_ip_address
   display_name: Audit Log IP Address
   help_url: https://chwt.app/hc/audit-logs
-  enabled: false
+  enabled: true
   premium: true
   column: feature_flags_ext_1
