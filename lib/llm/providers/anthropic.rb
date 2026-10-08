@@ -11,7 +11,9 @@ class Llm::Providers::Anthropic < RubyLLM::Providers::Anthropic
   OFFICIAL_API_HOST = 'api.anthropic.com'.freeze
   SERVER_SIDE_FALLBACK_BETA = 'server-side-fallback-2026-07-01'.freeze
   CONVERSATION_START = '[Conversation started]'.freeze
+  # OpenAI's json_object mode guarantees valid JSON, so upstream prompts sometimes show loose examples like { notes: ['...'] }.
   JSON_OUTPUT_INSTRUCTION = 'Respond with a single valid JSON object only, without code fences or any text outside the JSON. ' \
+                            'Use strict JSON syntax: double quotes around every key and string, even where an example above uses another notation. ' \
                             'If you need a tool, call it first and write the JSON once you have its results.'.freeze
 
   def self.configuration_options
