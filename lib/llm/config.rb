@@ -11,6 +11,9 @@ module Llm::Config
     -> { Rails.root.join('llm_models.json').to_s }
   ].freeze
 
+  # Claude models live in their own registry so config/llm_models.json can keep following upstream.
+  ANTHROPIC_MODEL_REGISTRY_FILE = Rails.root.join('config/llm_models_anthropic.json').to_s.freeze
+
   class << self
     def initialized?
       @initialized ||= false
@@ -46,6 +49,7 @@ module Llm::Config
       RubyLLM.configure do |config|
         config.openai_api_key = system_api_key if system_api_key.present?
         config.openai_api_base = LlmConstants.api_base_with_version(openai_endpoint) if openai_endpoint.present?
+        configure_anthropic(config)
         config.model_registry_file = custom_model_registry_file if custom_model_registry_file
         config.logger = Rails.logger
       end
@@ -54,6 +58,15 @@ module Llm::Config
       # RubyLLM may have auto-created the singleton from the gem's bundled
       # models.json before configure ran, so we replace it explicitly here.
       RubyLLM.models.load_from_json!(custom_model_registry_file) if custom_model_registry_file
+      # Lookups return the first match, so prepending lets these entries win over older metadata for the same IDs.
+      RubyLLM.models.all.unshift(*RubyLLM::Models.read_from_json(ANTHROPIC_MODEL_REGISTRY_FILE))
+    end
+
+    def configure_anthropic(config)
+      config.anthropic_api_key = anthropic_api_key if anthropic_api_key.present?
+      # RubyLLM appends v1/messages itself, so drop a trailing /v1 from the configured endpoint.
+      config.anthropic_api_base = LlmConstants.normalized_api_base(anthropic_endpoint) if anthropic_endpoint.present?
+      config.anthropic_effort = anthropic_effort.presence
     end
 
     # Returns the first existing path from DEFAULT_MODEL_REGISTRY_PATHS,
@@ -70,6 +83,18 @@ module Llm::Config
 
     def openai_endpoint
       InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value
+    end
+
+    def anthropic_api_key
+      InstallationConfig.find_by(name: 'CAPTAIN_ANTHROPIC_API_KEY')&.value
+    end
+
+    def anthropic_endpoint
+      InstallationConfig.find_by(name: 'CAPTAIN_ANTHROPIC_ENDPOINT')&.value
+    end
+
+    def anthropic_effort
+      InstallationConfig.find_by(name: 'CAPTAIN_ANTHROPIC_EFFORT')&.value
     end
   end
 end

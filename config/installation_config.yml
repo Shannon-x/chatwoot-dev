@@ -195,6 +195,27 @@
   display_title: 'OpenAI API Endpoint (optional)'
   description: 'The OpenAI endpoint configured for use in Captain AI. Default: https://api.openai.com/'
   locked: false
+- name: CAPTAIN_ANTHROPIC_API_KEY
+  display_title: 'Anthropic API Key'
+  description: 'The API key used for Claude models in Captain AI. Pick a Claude model per feature in Captain settings. Embeddings, audio transcription and PDF processing still use the OpenAI key.'
+  locked: false
+  type: secret
+- name: CAPTAIN_ANTHROPIC_ENDPOINT
+  display_title: 'Anthropic API Endpoint (optional)'
+  description: 'The Anthropic Messages API endpoint for Claude models in Captain AI. Default: https://api.anthropic.com'
+  locked: false
+- name: CAPTAIN_ANTHROPIC_EFFORT
+  display_title: 'Claude Effort (optional)'
+  description: 'How much Claude thinks before replying. Lower is faster and cheaper; leave on the model default unless replies are too slow or too shallow.'
+  locked: false
+  type: select
+  options:
+    '': 'Model default'
+    low: 'Low'
+    medium: 'Medium'
+    high: 'High'
+    xhigh: 'Extra high'
+    max: 'Max'
 - name: CAPTAIN_EMBEDDING_MODEL
   display_title: 'Embedding Model (optional)'
   description: 'The embedding model configured for use in Captain AI. Default: text-embedding-3-small'

@@ -159,17 +159,19 @@ models:
     display_name: 'Codex Mini (Latest)'
     credit_multiplier: 1
 
-  # ── Anthropic ─────────────────────────────────────────────────────────────
-  claude-haiku-4.5:
+  # ── Anthropic (native Messages API, see lib/llm/providers/anthropic.rb) ─────
+  claude-opus-5-5:
     provider: anthropic
-    display_name: 'Claude Haiku 4.5'
-    coming_soon: true
-    credit_multiplier: 2
-  claude-sonnet-4.5:
+    display_name: 'Claude Opus 5.5'
+    credit_multiplier: 5
+  claude-sonnet-5-5:
     provider: anthropic
-    display_name: 'Claude Sonnet 4.5'
-    coming_soon: true
+    display_name: 'Claude Sonnet 5.5'
     credit_multiplier: 3
+  claude-haiku-5-5:
+    provider: anthropic
+    display_name: 'Claude Haiku 5.5'
+    credit_multiplier: 1
 
   # ── Gemini ────────────────────────────────────────────────────────────────
   gemini-3-flash:
@@ -229,7 +231,8 @@ features:
         gpt-5.1-2025-11-13,
         gpt-5.2,
         gpt-5.2-2025-12-11,
-        claude-haiku-4.5,
+        claude-haiku-5-5,
+        claude-sonnet-5-5,
         gemini-3-flash,
         gemini-3-pro,
       ]
@@ -254,8 +257,9 @@ features:
         gpt-5-chat-latest,
         o4-mini-2025-04-16,
         o3-2025-04-16,
-        claude-haiku-4.5,
-        claude-sonnet-4.5,
+        claude-haiku-5-5,
+        claude-sonnet-5-5,
+        claude-opus-5-5,
         gemini-3-flash,
         gemini-3-pro,
       ]
@@ -283,8 +287,9 @@ features:
         gpt-5-chat-latest,
         o4-mini-2025-04-16,
         o3-2025-04-16,
-        claude-haiku-4.5,
-        claude-sonnet-4.5,
+        claude-haiku-5-5,
+        claude-sonnet-5-5,
+        claude-opus-5-5,
         gemini-3-flash,
         gemini-3-pro,
       ]
@@ -300,7 +305,7 @@ features:
         gpt-4.1-mini,
         gpt-5-mini,
         gemini-3-flash,
-        claude-haiku-4.5,
+        claude-haiku-5-5,
       ]
     default: gpt-5.4-nano-2026-03-17
 
@@ -314,8 +319,9 @@ features:
         gpt-4.1,
         gpt-5.1,
         gpt-5.2,
-        claude-haiku-4.5,
-        claude-sonnet-4.5,
+        claude-haiku-5-5,
+        claude-sonnet-5-5,
+        claude-opus-5-5,
         gemini-3-flash,
         gemini-3-pro,
       ]
@@ -329,8 +335,9 @@ features:
         gpt-4.1,
         gpt-5.1,
         gpt-5.2,
-        claude-haiku-4.5,
-        claude-sonnet-4.5,
+        claude-haiku-5-5,
+        claude-sonnet-5-5,
+        claude-opus-5-5,
         gemini-3-flash,
         gemini-3-pro,
       ]
@@ -345,8 +352,9 @@ features:
         gpt-4.1,
         gpt-5.1,
         gpt-5.2,
-        claude-haiku-4.5,
-        claude-sonnet-4.5,
+        claude-haiku-5-5,
+        claude-sonnet-5-5,
+        claude-opus-5-5,
         gemini-3-flash,
         gemini-3-pro,
       ]
@@ -363,18 +371,28 @@ features:
         gpt-4.1,
         gpt-5.1,
         gpt-5.2,
-        claude-haiku-4.5,
-        claude-sonnet-4.5,
+        claude-haiku-5-5,
+        claude-sonnet-5-5,
+        claude-opus-5-5,
         gemini-3-flash,
         gemini-3-pro,
       ]
     default: gpt-5.4-nano-2026-03-17
   onboarding_content_generation:
     models:
-      [gpt-5.4-nano-2026-03-17, gpt-4.1, gpt-4.1-mini, gpt-5-mini, gpt-5.1, gpt-5.2]
+      [
+        gpt-5.4-nano-2026-03-17,
+        gpt-4.1,
+        gpt-4.1-mini,
+        gpt-5-mini,
+        gpt-5.1,
+        gpt-5.2,
+        claude-haiku-5-5,
+        claude-sonnet-5-5,
+      ]
     default: gpt-5.4-nano-2026-03-17
   help_center_query_translation:
-    models: [gpt-5.4-nano-2026-03-17, gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini]
+    models: [gpt-5.4-nano-2026-03-17, gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini, claude-haiku-5-5]
     default: gpt-5.4-nano-2026-03-17
 
   audio_transcription:

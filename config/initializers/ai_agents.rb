@@ -4,6 +4,7 @@ require 'agents'
 
 Rails.application.config.after_initialize do
   api_key = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_API_KEY')&.value
+  anthropic_api_key = InstallationConfig.find_by(name: 'CAPTAIN_ANTHROPIC_API_KEY')&.value
   model = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence || LlmConstants::DEFAULT_MODEL
 
   if api_key.present?
@@ -14,6 +15,9 @@ Rails.application.config.after_initialize do
       config.debug = false
     end
   end
+
+  # Agent runs use the global RubyLLM config, so load the Anthropic settings and Claude model registry up front.
+  Llm::Config.initialize! if api_key.present? || anthropic_api_key.present?
 rescue StandardError => e
   Rails.logger.error "Failed to configure AI Agents SDK: #{e.message}"
 end
