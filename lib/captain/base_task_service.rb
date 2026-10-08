@@ -192,7 +192,10 @@ class Captain::BaseTaskService
   end
 
   def system_llm_credential
-    { api_key: system_api_key, source: :system } if system_api_key.present?
+    return { api_key: system_api_key, source: :system } if system_api_key.present?
+
+    # Claude requests authenticate with the Anthropic key from the RubyLLM config, so a Claude-only install has no OpenAI key here.
+    { api_key: nil, source: :system } if anthropic_api_key.present?
   end
 
   def openai_hook
@@ -201,6 +204,10 @@ class Captain::BaseTaskService
 
   def system_api_key
     @system_api_key ||= InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_API_KEY')&.value
+  end
+
+  def anthropic_api_key
+    @anthropic_api_key ||= InstallationConfig.find_by(name: 'CAPTAIN_ANTHROPIC_API_KEY')&.value
   end
 
   def exception_tracking_account
