@@ -59,7 +59,7 @@ class Captain::Llm::SystemPromptsService
         Ensure that you only generate notes from the information provided only.
         Provide the notes in the JSON format as shown below.
         ```json
-        { notes: ['note1', 'note2'] }
+        { "notes": ["note1", "note2"] }
         ```
 
       SYSTEM_PROMPT_MESSAGE
@@ -73,7 +73,7 @@ class Captain::Llm::SystemPromptsService
         Ensure that you only generate attributes from the information provided only.
         Provide the attributes in the JSON format as shown below.
         ```json
-        { attributes: [ { attribute: '', value: '' } ] }
+        { "attributes": [ { "attribute": "", "value": "" } ] }
         ```
 
       SYSTEM_PROMPT_MESSAGE
