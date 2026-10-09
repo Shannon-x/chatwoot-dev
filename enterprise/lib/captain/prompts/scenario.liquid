@@ -12,7 +12,7 @@ If you believe the user's request is not within the scope of your role, you can 
 
 {% render 'current_time', current_time: current_time %}
 
-{% render 'core_rules' %}
+{% render 'core_rules', human_handoff_disabled: human_handoff_disabled %}
 
 {% if playground_knowledge -%}
 # Playground Reference Material

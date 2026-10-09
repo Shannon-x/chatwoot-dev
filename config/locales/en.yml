@@ -309,6 +309,7 @@ en:
   conversations:
     captain:
       handoff: 'Transferring to another agent for further assistance.'
+      failure_without_handoff: 'Sorry, I could not process your last message. Please send it again.'
     messages:
       instagram_story_content: '%{story_sender} mentioned you in the story: '
       instagram_deleted_story_content: This story is no longer available.

@@ -69,7 +69,8 @@ class Captain::Scenario < ApplicationRecord
       assistant_name: assistant.name.downcase.gsub(/\s+/, '_'),
       citation_enabled: assistant.citations_enabled?,
       response_guidelines: response_guidelines || [],
-      guardrails: guardrails || []
+      guardrails: guardrails || [],
+      human_handoff_disabled: assistant.human_handoff_disabled?
     }
   end
 

@@ -281,6 +281,7 @@ zh_CN:
   conversations:
     captain:
       handoff: '正在转接另一个客服以获得进一步协助。'
+      failure_without_handoff: '抱歉，我刚才没能处理好你的消息，请再发一次。'
     messages:
       instagram_story_content: '%{story_sender} 会话中提到了你: '
       instagram_deleted_story_content: 本信息不存在
