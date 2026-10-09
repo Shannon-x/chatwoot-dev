@@ -22,8 +22,10 @@ class Captain::InboxPendingConversationsResolutionJob < ApplicationJob
 
   attr_reader :captain_assistant, :inactivity_cutoff_time
 
+  # Evaluation hands unfinished conversations to a human, so it only applies while human handoff is enabled.
   def evaluate_conversation_completion?(account)
-    account.feature_enabled?('captain_tasks') && captain_assistant.evaluate_inactive_conversations_before_resolving?
+    account.feature_enabled?('captain_tasks') && captain_assistant.evaluate_inactive_conversations_before_resolving? &&
+      !captain_assistant.human_handoff_disabled?
   end
 
   def perform_time_based(inbox)

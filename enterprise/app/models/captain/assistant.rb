@@ -127,8 +127,13 @@ class Captain::Assistant < ApplicationRecord
     send_inactivity_resolution_message
   end
 
+  def human_handoff_disabled?
+    config['human_handoff_disabled'] == true
+  end
+
   def available_agent_tools
     tools = self.class.built_in_agent_tools.dup
+    tools.reject! { |tool| tool[:id] == 'handoff' } if human_handoff_disabled?
 
     custom_tools = account.captain_custom_tools.enabled.map(&:to_tool_metadata)
     tools.concat(custom_tools)
@@ -210,9 +215,9 @@ class Captain::Assistant < ApplicationRecord
   def agent_tools
     [
       self.class.resolve_tool_class('faq_lookup').new(self),
-      self.class.resolve_tool_class('handoff').new(self),
+      (self.class.resolve_tool_class('handoff').new(self) unless human_handoff_disabled?),
       *account.captain_custom_tools.enabled.map { |custom_tool| custom_tool.tool(self) }
-    ]
+    ].compact
   end
 
   def prompt_context
@@ -229,7 +234,8 @@ class Captain::Assistant < ApplicationRecord
         }
       end,
       response_guidelines: response_guidelines || [],
-      guardrails: guardrails || []
+      guardrails: guardrails || [],
+      human_handoff_disabled: human_handoff_disabled?
     }
   end
 

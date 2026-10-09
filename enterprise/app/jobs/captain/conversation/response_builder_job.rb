@@ -87,6 +87,7 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
     # the conversation isn't pending anymore, a human took over mid-run; bail out
     # rather than posting a stale handoff message on top of their reply.
     return unless conversation_pending?
+    return process_failure_without_handoff if @assistant.human_handoff_disabled?
 
     process_v1_handoff
     record_v2_failure_handoff(source: Captain::ConversationEvents::Sources::GENERATION_FAILURE) if v2_generation_errored?
@@ -158,6 +159,14 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
     end
   end
 
+  # With human handoff disabled there is nobody to take over, so keep the
+  # conversation with Captain and ask the customer to send the message again.
+  def process_failure_without_handoff
+    I18n.with_locale(@assistant.account.locale) do
+      create_outgoing_message(I18n.t('conversations.captain.failure_without_handoff'))
+    end
+  end
+
   def send_out_of_office_message_if_applicable
     # Campaign conversations should never receive OOO templates — the campaign itself
     # serves as the initial outreach, and OOO would be confusing in that context.
@@ -194,6 +203,7 @@ class Captain::Conversation::ResponseBuilderJob < ApplicationJob
   def process_error_handoff
     return unless conversation_pending?
     return if captain_v2_enabled? && newer_customer_message_arrived?
+    return process_failure_without_handoff if @assistant.human_handoff_disabled?
 
     process_v1_handoff
     record_v2_failure_handoff(source: Captain::ConversationEvents::Sources::GENERATION_FAILURE) if captain_v2_enabled?
