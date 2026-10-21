@@ -553,7 +553,7 @@ RSpec.describe Captain::Conversation::ResponseBuilderJob, type: :job do
           subject_type: 'Conversation',
           result_id: conversation.messages.outgoing.last.id,
           result_type: 'Message',
-          llm_model: 'openai-gpt-5.2',
+          llm_model: 'openai-gpt-5.4-nano-2026-03-17',
           credits_consumed: 1.0,
           faq_ids: [7, 9],
           cited_document_ids: [],
