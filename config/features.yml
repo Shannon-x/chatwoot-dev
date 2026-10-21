@@ -287,17 +287,17 @@
   column: feature_flags_ext_1
 - name: conversation_monitors
   display_name: Conversation Monitors
-  enabled: false
+  enabled: true
   premium: true
   column: feature_flags_ext_1
 - name: campaign_analytics
   display_name: Campaign Analytics
-  enabled: false
+  enabled: true
   premium: true
   column: feature_flags_ext_1
 - name: company_enrichment
   display_name: Company Enrichment
-  enabled: false
+  enabled: true
   premium: true
   column: feature_flags_ext_1
 - name: stripe_integration
@@ -311,6 +311,6 @@
   column: feature_flags_ext_1
 - name: auto_translate
   display_name: Auto Translate
-  enabled: false
+  enabled: true
   premium: true
   column: feature_flags_ext_1
