@@ -29,24 +29,27 @@ RSpec.describe Llm::Providers::Anthropic do
     end
   end
 
+  # Later specs initialize Llm::Config from their own installation configs.
+  after { Llm::Config.reset! }
+
   it 'is the provider RubyLLM resolves Claude models to' do
-    expect(context.chat(model: 'claude-sonnet-5-5').instance_variable_get(:@provider)).to be_a(described_class)
+    expect(context.chat(model: 'claude-sonnet-5-5').provider).to be_a(described_class)
   end
 
   it 'translates OpenAI-style options into a valid Messages API request' do
     response = context.chat(model: 'claude-sonnet-5-5')
                       .with_temperature(1.0)
-                      .with_params(response_format: { type: 'json_object' }, max_tokens: 1000)
+                      .with_provider_options(response_format: { type: 'json_object' }, max_tokens: 1000)
                       .with_instructions('You are Captain.')
                       .ask('Hello')
 
     body = requests.first[:body]
     expect(response.content).to eq('{"answer":"ok"}')
     expect(body).not_to include('temperature', 'response_format')
-    expect(body['max_tokens']).to eq(described_class::DEFAULT_MAX_TOKENS)
-    expect(body['system'].pluck('text')).to eq(['You are Captain.', described_class::JSON_OUTPUT_INSTRUCTION])
+    expect(body['max_tokens']).to eq(described_class::Protocol::DEFAULT_MAX_TOKENS)
+    expect(body['system'].pluck('text')).to eq(['You are Captain.', described_class::Protocol::JSON_OUTPUT_INSTRUCTION])
     expect(body['fallbacks']).to eq('default')
-    expect(requests.first[:headers]['Anthropic-Beta']).to eq(described_class::SERVER_SIDE_FALLBACK_BETA)
+    expect(requests.first[:headers]['Anthropic-Beta']).to eq(described_class::Protocol::SERVER_SIDE_FALLBACK_BETA)
   end
 
   context 'with an effort configured' do
@@ -80,12 +83,12 @@ RSpec.describe Llm::Providers::Anthropic do
   it 'makes the history valid for the Messages API' do
     chat = context.chat(model: 'claude-sonnet-5-5')
     chat.add_message(role: :assistant, content: 'Hi, how can I help?')
-    chat.add_message(role: :user, content: RubyLLM::Content.new('', 'https://example.com/photo.png'))
+    chat.add_message(role: :user, content: ' ', attachments: ['https://example.com/photo.png'])
     chat.ask('What is in this photo?')
 
     messages = requests.first[:body]['messages']
     expect(messages.pluck('role')).to eq(%w[user assistant user user])
-    expect(messages.first['content']).to eq([{ 'type' => 'text', 'text' => described_class::CONVERSATION_START }])
+    expect(messages.first['content']).to eq([{ 'type' => 'text', 'text' => described_class::Protocol::CONVERSATION_START }])
     expect(messages.third['content'].pluck('type')).to eq(['image'])
   end
 
@@ -133,7 +136,7 @@ RSpec.describe Llm::Providers::Anthropic do
     before do
       stub_const('WeatherTool', Class.new(RubyLLM::Tool) do
         description 'Looks up the weather'
-        param :city, desc: 'City name'
+        parameter :city, description: 'City name'
 
         def execute(city:)
           "Sunny in #{city}"
@@ -142,7 +145,7 @@ RSpec.describe Llm::Providers::Anthropic do
     end
 
     it 'returns all tool results in one user turn and caches the prefix' do
-      context.chat(model: 'claude-sonnet-5-5').with_tool(WeatherTool).ask('Weather in Paris and Rome?')
+      context.chat(model: 'claude-sonnet-5-5').with_tools(WeatherTool).ask('Weather in Paris and Rome?')
 
       follow_up = requests.second[:body]
       expect(follow_up['cache_control']).to eq('type' => 'ephemeral')

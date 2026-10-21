@@ -51,6 +51,16 @@ models:
     display_name: 'GPT-5.1'
     credit_multiplier: 5
 
+  # ── GPT-6.x (upstream v4.19.0, used by message translation) ──────────────
+  gpt-6-luna:
+    provider: openai
+    display_name: 'GPT-6 Luna'
+    credit_multiplier: 1
+  gpt-6.1-sol:
+    provider: openai
+    display_name: 'GPT-6.1 Sol'
+    credit_multiplier: 2
+
   # ── GPT-4.x Flagship (250K token group, credit_multiplier: 3) ─────────────
   gpt-4.5-preview-2025-02-27:
     provider: openai
@@ -240,6 +250,7 @@ features:
 
   # Assistant: mid-to-high tier models for smarter replies
   assistant:
+    reasoning_effort: none
     models:
       [
         gpt-5.4-nano-2026-03-17,
@@ -267,6 +278,7 @@ features:
 
   # Copilot: same as assistant, full model range for agent use
   copilot:
+    reasoning_effort: none
     models:
       [
         gpt-5.4-nano-2026-03-17,
@@ -292,20 +304,6 @@ features:
         claude-opus-5-5,
         gemini-3-flash,
         gemini-3-pro,
-      ]
-    default: gpt-5.4-nano-2026-03-17
-
-  # Label suggestion: cheapest/fastest models only
-  label_suggestion:
-    models:
-      [
-        gpt-5.4-nano-2026-03-17,
-        gpt-4.1-nano,
-        gpt-4.1-nano-2025-04-14,
-        gpt-4.1-mini,
-        gpt-5-mini,
-        gemini-3-flash,
-        claude-haiku-5-5,
       ]
     default: gpt-5.4-nano-2026-03-17
 
@@ -393,6 +391,23 @@ features:
     default: gpt-5.4-nano-2026-03-17
   help_center_query_translation:
     models: [gpt-5.4-nano-2026-03-17, gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini, claude-haiku-5-5]
+    default: gpt-5.4-nano-2026-03-17
+  # message_translation / language_detection: upstream v4.19.0 auto translation, routed to gpt-5.4-nano
+  message_translation:
+    models:
+      [
+        gpt-5.4-nano-2026-03-17,
+        gpt-6-luna,
+        gpt-6.1-sol,
+        gpt-5.2,
+        gpt-5-mini,
+        gpt-4.1-mini,
+        claude-haiku-5-5,
+        claude-sonnet-5-5,
+      ]
+    default: gpt-5.4-nano-2026-03-17
+  language_detection:
+    models: [gpt-5.4-nano-2026-03-17, gpt-5-mini, gpt-5-nano, claude-haiku-5-5]
     default: gpt-5.4-nano-2026-03-17
 
   audio_transcription:

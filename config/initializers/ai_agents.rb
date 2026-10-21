@@ -7,13 +7,15 @@ Rails.application.config.after_initialize do
   anthropic_api_key = InstallationConfig.find_by(name: 'CAPTAIN_ANTHROPIC_API_KEY')&.value
   model = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')&.value.presence || LlmConstants::DEFAULT_MODEL
 
-  if api_key.present?
-    Agents.configure do |config|
+  Agents.configure do |config|
+    if api_key.present?
       config.openai_api_key = api_key
       config.openai_api_base = LlmConstants.api_base_with_version
-      config.default_model = model
-      config.debug = false
     end
+    config.default_model = model
+    config.openai_protocol = :chat_completions
+    config.model_registry_file = Rails.root.join('config/llm_models.json').to_s
+    config.debug = false
   end
 
   # Agent runs use the global RubyLLM config, so load the Anthropic settings and Claude model registry up front.

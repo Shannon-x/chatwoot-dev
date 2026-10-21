@@ -7,7 +7,7 @@ module Llm::Config
   # The first path that resolves to an existing file wins.
   DEFAULT_MODEL_REGISTRY_PATHS = [
     -> { ENV['RUBYLLM_MODEL_REGISTRY_FILE'].presence },
-    -> { Rails.root.join('config', 'llm_models.json').to_s },
+    -> { Rails.root.join('config/llm_models.json').to_s },
     -> { Rails.root.join('llm_models.json').to_s }
   ].freeze
 
@@ -35,9 +35,6 @@ module Llm::Config
       context = RubyLLM.context do |config|
         config.openai_api_key = api_key
         config.openai_api_base = api_base
-        # Always point every context at our registry so new models are recognized
-        # regardless of when the global singleton was first created.
-        config.model_registry_file = custom_model_registry_file if custom_model_registry_file
       end
 
       yield context
@@ -51,15 +48,20 @@ module Llm::Config
         config.openai_api_base = LlmConstants.api_base_with_version(openai_endpoint) if openai_endpoint.present?
         configure_anthropic(config)
         config.model_registry_file = custom_model_registry_file if custom_model_registry_file
+        config.openai_protocol = :chat_completions
         config.logger = Rails.logger
       end
 
-      # Force the global Models singleton to reload from our registry file.
-      # RubyLLM may have auto-created the singleton from the gem's bundled
-      # models.json before configure ran, so we replace it explicitly here.
-      RubyLLM.models.load_from_json!(custom_model_registry_file) if custom_model_registry_file
-      # Lookups return the first match, so prepending lets these entries win over older metadata for the same IDs.
-      RubyLLM.models.all.unshift(*RubyLLM::Models.read_from_json(ANTHROPIC_MODEL_REGISTRY_FILE))
+      load_model_registry
+    end
+
+    # Force the global Models singleton to reload from our registry file.
+    # RubyLLM may have auto-created the singleton from the gem's bundled
+    # models.json before configure ran, so we replace it explicitly here.
+    def load_model_registry
+      RubyLLM.models.load_from_json(custom_model_registry_file) if custom_model_registry_file
+      # Models#all returns a filtered copy, so append to the backing list for the Claude entries to be found.
+      RubyLLM.models.all_including_unlisted.concat(RubyLLM::Models::Registry.read(ANTHROPIC_MODEL_REGISTRY_FILE))
     end
 
     def configure_anthropic(config)
