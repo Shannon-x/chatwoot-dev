@@ -22,14 +22,14 @@ RSpec.describe Llm::FeatureRouter do
     end
 
     it 'uses a valid account model override' do
-      account.update!(captain_models: { 'editor' => 'gpt-4.1' })
+      account.update!(captain_models: { 'editor' => 'gpt-5.1' })
 
       resolved = described_class.resolve(feature: 'editor', account: account)
 
       expect(resolved).to include(
         feature: 'editor',
         provider: 'openai',
-        model: 'gpt-4.1',
+        model: 'gpt-5.1',
         source: :account_override
       )
     end

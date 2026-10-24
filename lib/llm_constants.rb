@@ -3,7 +3,6 @@
 module LlmConstants
   DEFAULT_MODEL = 'gpt-5.4-nano-2026-03-17'
   DEFAULT_EMBEDDING_MODEL = 'text-embedding-3-small'
-  PDF_PROCESSING_MODEL = 'gpt-5.4-nano-2026-03-17'
 
   OPENAI_API_ENDPOINT = 'https://api.openai.com'
 
@@ -15,9 +14,7 @@ module LlmConstants
                InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value.presence
     return nil unless endpoint
 
-    endpoint = endpoint.strip.chomp('/')
-    endpoint = endpoint.chomp('/v1').chomp('/')
-    endpoint
+    endpoint.strip.chomp('/').chomp('/v1').chomp('/')
   end
 
   # Returns normalized base + /v1 — the format expected by RubyLLM, ai-agents and ruby-openai.

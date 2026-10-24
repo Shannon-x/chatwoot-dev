@@ -56,37 +56,13 @@ models:
     provider: openai
     display_name: 'GPT-6 Luna'
     credit_multiplier: 1
+    reasoning_effort: none
+    # models.dev lists temperature as unsupported, but Luna accepts it at reasoning effort none.
+    temperature: true
   gpt-6.1-sol:
     provider: openai
     display_name: 'GPT-6.1 Sol'
     credit_multiplier: 2
-
-  # ── GPT-4.x Flagship (250K token group, credit_multiplier: 3) ─────────────
-  gpt-4.5-preview-2025-02-27:
-    provider: openai
-    display_name: 'GPT-4.5 Preview (Deprecated)'
-    credit_multiplier: 3
-    deprecated: true
-  gpt-4.1-2025-04-14:
-    provider: openai
-    display_name: 'GPT-4.1 (2025-04-14)'
-    credit_multiplier: 3
-  gpt-4.1:
-    provider: openai
-    display_name: 'GPT-4.1'
-    credit_multiplier: 3
-  gpt-4o-2024-05-13:
-    provider: openai
-    display_name: 'GPT-4o (2024-05-13)'
-    credit_multiplier: 3
-  gpt-4o-2024-08-06:
-    provider: openai
-    display_name: 'GPT-4o (2024-08-06)'
-    credit_multiplier: 3
-  gpt-4o-2024-11-20:
-    provider: openai
-    display_name: 'GPT-4o (2024-11-20)'
-    credit_multiplier: 3
 
   # ── o-series Reasoning (250K token group, credit_multiplier: 4) ───────────
   o3-2025-04-16:
@@ -133,28 +109,6 @@ models:
     display_name: 'GPT-5 Nano'
     credit_multiplier: 1
 
-  # ── GPT-4.x Mini/Nano (10M token group, credit_multiplier: 1) ────────────
-  gpt-4.1-mini-2025-04-14:
-    provider: openai
-    display_name: 'GPT-4.1 Mini (2025-04-14)'
-    credit_multiplier: 1
-  gpt-4.1-nano-2025-04-14:
-    provider: openai
-    display_name: 'GPT-4.1 Nano (2025-04-14)'
-    credit_multiplier: 1
-  gpt-4.1-mini:
-    provider: openai
-    display_name: 'GPT-4.1 Mini'
-    credit_multiplier: 1
-  gpt-4.1-nano:
-    provider: openai
-    display_name: 'GPT-4.1 Nano'
-    credit_multiplier: 1
-  gpt-4o-mini-2024-07-18:
-    provider: openai
-    display_name: 'GPT-4o Mini (2024-07-18)'
-    credit_multiplier: 1
-
   # ── o-series Mini / Codex Mini (10M token group, credit_multiplier: 2) ─────
   o4-mini-2025-04-16:
     provider: openai
@@ -196,13 +150,13 @@ models:
     credit_multiplier: 3
 
   # ── Utility models ────────────────────────────────────────────────────────
-  whisper-1:
+  gpt-transcribe:
     provider: openai
-    display_name: 'Whisper'
+    display_name: 'GPT Transcribe'
     credit_multiplier: 1
-  gpt-4o-mini-transcribe:
+  gpt-audio-1.5:
     provider: openai
-    display_name: 'GPT-4o Mini Transcribe'
+    display_name: 'GPT-Audio 1.5'
     credit_multiplier: 1
   text-embedding-3-small:
     provider: openai
@@ -215,9 +169,8 @@ features:
     models:
       [
         gpt-5.4-nano-2026-03-17,
-        gpt-4.1-mini,
+        gpt-6-luna,
         gpt-5-mini,
-        gpt-4.1,
         gpt-5.1,
         gpt-5.2,
       ]
@@ -228,15 +181,10 @@ features:
     models:
       [
         gpt-5.4-nano-2026-03-17,
-        gpt-4.1-nano,
-        gpt-4.1-nano-2025-04-14,
-        gpt-4.1-mini,
-        gpt-4.1-mini-2025-04-14,
+        gpt-6-luna,
         gpt-5-mini,
         gpt-5-mini-2025-08-07,
         gpt-5.4-mini-2026-03-17,
-        gpt-4.1,
-        gpt-4.1-2025-04-14,
         gpt-5.1,
         gpt-5.1-2025-11-13,
         gpt-5.2,
@@ -254,11 +202,9 @@ features:
     models:
       [
         gpt-5.4-nano-2026-03-17,
-        gpt-4.1-mini,
+        gpt-6-luna,
         gpt-5-mini,
         gpt-5-mini-2025-08-07,
-        gpt-4.1,
-        gpt-4.1-2025-04-14,
         gpt-5.1,
         gpt-5.1-2025-11-13,
         gpt-5.1-codex,
@@ -282,13 +228,11 @@ features:
     models:
       [
         gpt-5.4-nano-2026-03-17,
-        gpt-4.1-mini,
+        gpt-6-luna,
         gpt-5-mini,
         gpt-5-mini-2025-08-07,
         gpt-5.1-codex-mini,
         codex-mini-latest,
-        gpt-4.1,
-        gpt-4.1-2025-04-14,
         gpt-5.1,
         gpt-5.1-2025-11-13,
         gpt-5.1-codex,
@@ -307,14 +251,33 @@ features:
       ]
     default: gpt-5.4-nano-2026-03-17
 
-  # FAQ / content generation (upstream v4.16.0 features)
-  document_faq_generation:
+  # copilot_workflows: upstream v4.19.1 internal feature behind the copilot_workflows account flag, routed to gpt-5.4-nano.
+  # Reasoning stays off: upstream's eval found medium effort slower with no gain.
+  copilot_workflows:
+    reasoning_effort: none
     models:
       [
         gpt-5.4-nano-2026-03-17,
-        gpt-4.1-mini,
+        gpt-6-luna,
         gpt-5-mini,
-        gpt-4.1,
+        gpt-5.1,
+        gpt-5.2,
+        claude-haiku-5-5,
+        claude-sonnet-5-5,
+        gemini-3-flash,
+        gemini-3-pro,
+      ]
+    default: gpt-5.4-nano-2026-03-17
+    internal: true
+
+  # FAQ / content generation (upstream v4.16.0 features)
+  document_faq_generation:
+    reasoning_effort: medium
+    models:
+      [
+        gpt-5.4-nano-2026-03-17,
+        gpt-6-luna,
+        gpt-5-mini,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
@@ -328,9 +291,8 @@ features:
     models:
       [
         gpt-5.4-nano-2026-03-17,
-        gpt-4.1-mini,
+        gpt-6-luna,
         gpt-5-mini,
-        gpt-4.1,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
@@ -345,9 +307,8 @@ features:
     models:
       [
         gpt-5.4-nano-2026-03-17,
-        gpt-4.1-mini,
+        gpt-6-luna,
         gpt-5-mini,
-        gpt-4.1,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
@@ -358,15 +319,14 @@ features:
       ]
     default: gpt-5.4-nano-2026-03-17
   pdf_faq_generation:
-    models: [gpt-5.4-nano-2026-03-17, gpt-4.1-mini, gpt-5-mini, gpt-4.1, gpt-5.1, gpt-5.2]
+    models: [gpt-5.4-nano-2026-03-17, gpt-6-luna, gpt-5-mini, gpt-5.1, gpt-5.2]
     default: gpt-5.4-nano-2026-03-17
   help_center_article_generation:
     models:
       [
         gpt-5.4-nano-2026-03-17,
-        gpt-4.1-mini,
+        gpt-6-luna,
         gpt-5-mini,
-        gpt-4.1,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
@@ -380,8 +340,7 @@ features:
     models:
       [
         gpt-5.4-nano-2026-03-17,
-        gpt-4.1,
-        gpt-4.1-mini,
+        gpt-6-luna,
         gpt-5-mini,
         gpt-5.1,
         gpt-5.2,
@@ -390,7 +349,7 @@ features:
       ]
     default: gpt-5.4-nano-2026-03-17
   help_center_query_translation:
-    models: [gpt-5.4-nano-2026-03-17, gpt-4.1-nano, gpt-4.1-mini, gpt-5-mini, claude-haiku-5-5]
+    models: [gpt-5.4-nano-2026-03-17, gpt-6-luna, gpt-5-mini, claude-haiku-5-5]
     default: gpt-5.4-nano-2026-03-17
   # message_translation / language_detection: upstream v4.19.0 auto translation, routed to gpt-5.4-nano
   message_translation:
@@ -401,7 +360,6 @@ features:
         gpt-6.1-sol,
         gpt-5.2,
         gpt-5-mini,
-        gpt-4.1-mini,
         claude-haiku-5-5,
         claude-sonnet-5-5,
       ]
@@ -411,8 +369,11 @@ features:
     default: gpt-5.4-nano-2026-03-17
 
   audio_transcription:
-    models: [gpt-4o-mini-transcribe, whisper-1]
-    default: gpt-4o-mini-transcribe
+    models: [gpt-transcribe]
+    default: gpt-transcribe
+  call_announcement:
+    models: [gpt-audio-1.5]
+    default: gpt-audio-1.5
 
   help_center_search:
     models: [text-embedding-3-small]
