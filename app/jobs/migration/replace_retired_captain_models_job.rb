@@ -31,11 +31,16 @@ class Migration::ReplaceRetiredCaptainModelsJob < ApplicationJob
   def replace_account_models
     Account.find_each do |account|
       models = account.captain_models
-      next unless models&.values&.any? { |model| RETIRED_MODELS.key?(model) }
+      next unless models&.values&.any? { |model| replacement_for(model) != model }
 
-      account.update!(captain_models: models.transform_values { |model| RETIRED_MODELS.fetch(model, model) })
+      account.update!(captain_models: models.transform_values { |model| replacement_for(model) })
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error("[retired-captain-models] account_id=#{account.id} #{e.record.errors.full_messages.to_sentence}")
     end
+  end
+
+  # This fork also offered dated GPT-4 snapshots (gpt-4.1-nano-2025-04-14, gpt-4o-2024-11-20, ...), so any GPT-4 model is retired.
+  def replacement_for(model)
+    RETIRED_MODELS.fetch(model) { model.to_s.start_with?('gpt-4') ? TEXT_MODEL : model }
   end
 end
