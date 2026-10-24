@@ -316,6 +316,6 @@
   column: feature_flags_ext_1
 - name: copilot_workflows
   display_name: Copilot workflows
-  enabled: false
+  enabled: true
   premium: true
   column: feature_flags_ext_1
