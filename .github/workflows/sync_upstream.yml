@@ -101,9 +101,8 @@ jobs:
               /def self\.chatwoot_cloud\?\n.*?(?=\n  def self\.|\nend)/m =>
                 "def self.chatwoot_cloud?\n    # Always return true to enable all cloud-only features in self-hosted enterprise\n    true\n  end\n",
               /def self\.self_hosted_enterprise\?\n.*?(?=\n  def self\.|\nend)/m =>
-                "def self.self_hosted_enterprise?\n    # Always return true for self-hosted enterprise\n    true\n  end\n",
-              /def self\.advanced_search_allowed\?\n.*?(?=\n  def self\.|\nend)/m =>
-                "def self.advanced_search_allowed?\n    # Always allow advanced search\n    ENV.fetch(\"OPENSEARCH_URL\", nil).present? || true\n  end\n"
+                "def self.self_hosted_enterprise?\n    # Always return true for self-hosted enterprise\n    true\n  end\n"
+              # advanced_search_allowed? keeps the upstream check (needs OPENSEARCH_URL), or messages pile up reindex jobs no worker runs.
             }
 
             replacements.each { |pattern, replacement| content.gsub!(pattern, replacement) }

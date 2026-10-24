@@ -49,8 +49,8 @@ module ChatwootApp
   end
 
   def self.advanced_search_allowed?
-    # Always allow advanced search
-    ENV.fetch("OPENSEARCH_URL", nil).present? || true
+    # Only with a configured OpenSearch: without it every message queues a reindex job that nothing can run.
+    enterprise? && ENV.fetch('OPENSEARCH_URL', nil).present?
   end
 
   def self.otel_enabled?
