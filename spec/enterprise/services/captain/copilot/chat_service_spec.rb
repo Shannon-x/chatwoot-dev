@@ -79,7 +79,7 @@ RSpec.describe Captain::Copilot::ChatService do
     it 'uses the Copilot default ahead of the installation model' do
       InstallationConfig.find_or_initialize_by(name: 'CAPTAIN_OPEN_AI_MODEL').update!(value: 'gpt-6-luna')
 
-      expect(RubyLLM).to receive(:chat).with(model: 'gpt-5.2', protocol: :responses).and_return(mock_chat)
+      expect(RubyLLM).to receive(:chat).with(model: 'gpt-5.4-nano-2026-03-17', protocol: :responses).and_return(mock_chat)
 
       service.generate_response('Hello')
     end
@@ -132,7 +132,7 @@ RSpec.describe Captain::Copilot::ChatService do
       it 'uses the Copilot default ahead of the installation model' do
         InstallationConfig.find_or_initialize_by(name: 'CAPTAIN_OPEN_AI_MODEL').update!(value: 'gpt-6-luna')
 
-        expect(service.model).to eq('gpt-5.2')
+        expect(service.model).to eq('gpt-5.4-nano-2026-03-17')
       end
 
       it 'does not increment response usage' do
