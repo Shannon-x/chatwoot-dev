@@ -57,11 +57,8 @@ ruby -i -E UTF-8 -e '
     "def self.self_hosted_enterprise?\n    # Always return true for self-hosted enterprise\n    true\n  end\n\n  "
   )
 
-  # Patch advanced_search_allowed? method
-  content.gsub!(
-    /def self\.advanced_search_allowed\?\n.*?(?=\n  def self\.|^end)/m,
-    "def self.advanced_search_allowed?\n    # Always allow advanced search\n    ENV.fetch(\"OPENSEARCH_URL\", nil).present? || true\n  end\n\n  "
-  )
+  # advanced_search_allowed? keeps the upstream check (needs OPENSEARCH_URL), or messages
+  # pile up reindex jobs that no Sidekiq worker runs.
 
   File.write(ARGV[0], content)
 ' "$CHATWOOT_APP"
