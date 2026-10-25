@@ -156,6 +156,85 @@ RSpec.describe Llm::Providers::Anthropic do
     end
   end
 
+  context 'when history replays Claude thinking blocks' do
+    let(:drop_block_thinking) { { 'type' => 'adaptive', 'block_binding' => { 'prefix_mismatch_behavior' => 'drop_block' } } }
+    let(:responses) do
+      [
+        {
+          id: 'msg_1', type: 'message', role: 'assistant', model: 'claude-haiku-5-5',
+          content: [
+            { type: 'thinking', thinking: 'Need the weather first.', signature: 'sig-1' },
+            { type: 'tool_use', id: 'toolu_1', name: 'weather', input: { city: 'Paris' } }
+          ],
+          stop_reason: 'tool_use', usage: { input_tokens: 10, output_tokens: 5 }
+        },
+        text_response
+      ]
+    end
+
+    before do
+      stub_const('WeatherTool', Class.new(RubyLLM::Tool) do
+        description 'Looks up the weather'
+        parameter :city, description: 'City name'
+
+        def execute(city:)
+          "Sunny in #{city}"
+        end
+      end)
+    end
+
+    it 'lets Claude drop blocks bound to another prefix instead of rejecting the tool loop' do
+      context.chat(model: 'claude-haiku-5-5').with_tools(WeatherTool).ask('Weather in Paris?')
+
+      expect(requests.first[:body]).not_to include('thinking')
+      expect(requests.first[:headers]).not_to include('Anthropic-Beta')
+      follow_up = requests.second
+      expect(follow_up[:body]['thinking']).to eq(drop_block_thinking)
+      expect(follow_up[:body]['messages'].second['content'].pluck('type')).to eq(%w[thinking tool_use])
+      expect(follow_up[:headers]['Anthropic-Beta']).to eq(described_class::Protocol::THINKING_BINDING_BETA)
+    end
+
+    it 'sends the binding beta next to server-side fallback' do
+      context.chat(model: 'claude-sonnet-5-5').with_tools(WeatherTool).ask('Weather in Paris?')
+
+      expect(requests.second[:headers]['Anthropic-Beta']).to eq(
+        [described_class::Protocol::SERVER_SIDE_FALLBACK_BETA, described_class::Protocol::THINKING_BINDING_BETA].join(',')
+      )
+    end
+
+    it 'covers history restored from another agent' do
+      chat = context.chat(model: 'claude-haiku-5-5')
+      chat.add_message(role: :user, content: 'Hi')
+      chat.add_message(role: :assistant, content: 'Hello!', thinking: { text: 'Greet back.', signature: 'sig-0' })
+      chat.ask('Weather in Paris?')
+
+      body = requests.first[:body]
+      expect(body['thinking']).to eq(drop_block_thinking)
+      expect(body['messages'].second['content'].first).to include('type' => 'thinking', 'signature' => 'sig-0')
+    end
+
+    it 'removes replayed blocks for a model running without thinking' do
+      chat = context.chat(model: 'claude-sonnet-4-5')
+      chat.add_message(role: :user, content: 'Hi')
+      chat.add_message(role: :assistant, content: 'Hello!', thinking: { text: 'Greet back.', signature: 'sig-0' })
+      chat.ask('Weather in Paris?')
+
+      body = requests.first[:body]
+      expect(body).not_to include('thinking')
+      expect(body['messages'].second['content'].pluck('type')).to eq(['text'])
+      expect(requests.first[:headers]).not_to include('Anthropic-Beta')
+    end
+
+    it 'logs the blocks Claude dropped' do
+      responses.first[:input_transformations] = [{ type: 'thinking_dropped', path: 'messages.1.content.0', reason: 'prefix_binding_mismatch' }]
+      allow(Rails.logger).to receive(:info)
+
+      context.chat(model: 'claude-haiku-5-5').with_tools(WeatherTool).ask('Weather in Paris?')
+
+      expect(Rails.logger).to have_received(:info).with(/dropped replayed thinking blocks: messages\.1\.content\.0 \(prefix_binding_mismatch\)/)
+    end
+  end
+
   context 'when Claude declines the request' do
     let(:responses) do
       [{

@@ -4,6 +4,8 @@ class Llm::Providers::Anthropic::Protocol < RubyLLM::Protocols::Anthropic
   DEFAULT_MAX_TOKENS = 16_000
   OFFICIAL_API_HOST = 'api.anthropic.com'.freeze
   SERVER_SIDE_FALLBACK_BETA = 'server-side-fallback-2026-07-01'.freeze
+  THINKING_BINDING_BETA = 'thinking-binding-controls-2026-08-01'.freeze
+  THINKING_BLOCK_TYPES = %w[thinking redacted_thinking].freeze
   CONVERSATION_START = '[Conversation started]'.freeze
   # OpenAI's json_object mode guarantees valid JSON, so upstream prompts sometimes show loose examples like { notes: ['...'] }.
   JSON_OUTPUT_INSTRUCTION = 'Respond with a single valid JSON object only, without code fences or any text outside the JSON. ' \
@@ -16,6 +18,7 @@ class Llm::Providers::Anthropic::Protocol < RubyLLM::Protocols::Anthropic
     apply_model_constraints(payload)
     apply_claude_features(payload)
     apply_json_object_format(payload)
+    apply_thinking_replay(payload)
 
     schema = payload.dig(:output_config, :format, :schema)
     payload[:output_config][:format][:schema] = Llm::Providers::AnthropicSchema.transform(schema) if schema
@@ -50,6 +53,38 @@ class Llm::Providers::Anthropic::Protocol < RubyLLM::Protocols::Anthropic
     payload[:system] = Array(payload[:system]) + [{ type: 'text', text: JSON_OUTPUT_INSTRUCTION }]
   end
 
+  # Claude 5 models bind each thinking block to the system prompt, tools and earlier messages it was produced under, and
+  # reject a replay under a different prefix with a 400 that no retry clears. Captain V2 hands conversations between agents
+  # with their own instructions and tools, so the previous agent's blocks stop matching; drop_block lets the API discard
+  # those and keep the rest. A model running without thinking only sees such blocks after a model switch, so they go.
+  def apply_thinking_replay(payload)
+    return unless payload[:messages].any? { |message| replays_thinking?(message) }
+    return bind_replayed_thinking(payload) if model.metadata[:adaptive_thinking]
+
+    strip_replayed_thinking(payload) unless thinking_on?(payload)
+  end
+
+  def bind_replayed_thinking(payload)
+    payload[:thinking] = (payload[:thinking] || { type: 'adaptive' }).merge(block_binding: { prefix_mismatch_behavior: 'drop_block' })
+  end
+
+  def strip_replayed_thinking(payload)
+    payload[:messages] = payload[:messages].map { |message| message.merge(content: message[:content].reject { |block| thinking_block?(block) }) }
+  end
+
+  def thinking_on?(payload)
+    payload[:thinking].present? && payload[:thinking][:type] != 'disabled'
+  end
+
+  def replays_thinking?(message)
+    message[:role] == 'assistant' && message[:content].any? { |block| thinking_block?(block) }
+  end
+
+  # RubyLLM replays the blocks it parsed from a response with string keys and rebuilds restored history with symbol keys.
+  def thinking_block?(block)
+    THINKING_BLOCK_TYPES.include?(block[:type] || block['type'])
+  end
+
   # The Messages API rejects whitespace-only text blocks (image-only messages produce them) and a leading assistant turn.
   def normalize_messages(messages)
     messages = messages.filter_map do |message|
@@ -62,17 +97,18 @@ class Llm::Providers::Anthropic::Protocol < RubyLLM::Protocols::Anthropic
   end
 
   def sync_response(payload, additional_headers = {})
-    super(payload, fallback_headers(payload, additional_headers))
+    super(payload, beta_headers(payload, additional_headers))
   end
 
   def stream_response(payload, additional_headers = {}, &)
-    super(payload, fallback_headers(payload, additional_headers), &)
+    super(payload, beta_headers(payload, additional_headers), &)
   end
 
-  def fallback_headers(payload, headers)
-    return headers unless payload[:fallbacks]
-
-    headers.merge('anthropic-beta' => join_betas(headers['anthropic-beta'], SERVER_SIDE_FALLBACK_BETA))
+  def beta_headers(payload, headers)
+    betas = []
+    betas << SERVER_SIDE_FALLBACK_BETA if payload[:fallbacks]
+    betas << THINKING_BINDING_BETA if payload.dig(:thinking, :block_binding)
+    betas.reduce(headers) { |merged, beta| merged.merge('anthropic-beta' => join_betas(merged['anthropic-beta'], beta)) }
   end
 
   def parse_completion_response(response)
@@ -80,7 +116,15 @@ class Llm::Providers::Anthropic::Protocol < RubyLLM::Protocols::Anthropic
       category = response.body.dig('stop_details', 'category')
       raise Llm::Providers::Anthropic::RefusalError.new("Claude declined the request#{" (#{category})" if category}", response: response)
     end
+    log_dropped_thinking(response.body['input_transformations'])
 
     super
+  end
+
+  def log_dropped_thinking(transformations)
+    return if transformations.blank?
+
+    dropped = transformations.map { |change| "#{change['path']} (#{change['reason']})" }.join(', ')
+    Rails.logger.info("[Llm::Providers::Anthropic] Claude dropped replayed thinking blocks: #{dropped}")
   end
 end
