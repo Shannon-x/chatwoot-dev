@@ -29,6 +29,7 @@ class Captain::Assistant < ApplicationRecord
   include Avatarable
   include Concerns::CaptainToolsHelpers
   include Concerns::Agentable
+  include Concerns::AssistantToolCatalog
 
   self.table_name = 'captain_assistants'
 
@@ -45,6 +46,8 @@ class Captain::Assistant < ApplicationRecord
   has_many :messages, as: :sender, dependent: :nullify
   has_many :copilot_threads, dependent: :destroy_async
   has_many :custom_tools, class_name: 'Captain::CustomTool', dependent: :destroy_async
+  has_many :mcp_servers, class_name: 'Captain::McpServer', dependent: :destroy_async
+  has_many :mcp_tools, through: :mcp_servers, source: :tools
   has_many :scenarios, class_name: 'Captain::Scenario', dependent: :destroy_async
   has_many :agent_sessions, class_name: 'Captain::AgentSession', dependent: :destroy_async
   has_many :conversation_outcomes, dependent: :destroy_async
@@ -128,21 +131,6 @@ class Captain::Assistant < ApplicationRecord
     config['human_handoff_disabled'] == true
   end
 
-  def available_agent_tools
-    tools = self.class.built_in_agent_tools.dup
-    tools.reject! { |tool| tool[:id] == 'handoff' } if human_handoff_disabled?
-
-    tools.concat(custom_tools.enabled.map(&:to_tool_metadata))
-
-    tools
-  end
-
-  def available_tool_ids = available_agent_tools.pluck(:id)
-
-  def known_tool_ids
-    self.class.built_in_tool_ids + custom_tools.pluck(:slug)
-  end
-
   def push_event_data
     assistant_event_data
   end
@@ -212,7 +200,8 @@ class Captain::Assistant < ApplicationRecord
     [
       self.class.resolve_tool_class('faq_lookup').new(self),
       (self.class.resolve_tool_class('handoff').new(self) unless human_handoff_disabled?),
-      *custom_tools.enabled.map { |custom_tool| custom_tool.tool(self) }
+      *custom_tools.enabled.map { |custom_tool| custom_tool.tool(self) },
+      *mcp_agent_tools.tools
     ].compact
   end
 

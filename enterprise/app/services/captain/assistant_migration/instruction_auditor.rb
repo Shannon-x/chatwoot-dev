@@ -1,10 +1,9 @@
 class Captain::AssistantMigration::InstructionAuditor < Captain::BaseTaskService
-  AUDITOR_MODEL = 'gpt-5.4-nano-2026-03-17'.freeze
   pattr_initialize [:assistant!, :source_payload!, :draft!, :available_additions!]
 
   def perform
     make_api_call(
-      model: AUDITOR_MODEL,
+      model: GPT_MODEL,
       messages: messages,
       schema: Captain::AssistantMigration::InstructionAuditorSchema.for(available_additions)
     )

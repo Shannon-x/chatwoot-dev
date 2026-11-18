@@ -1,7 +1,7 @@
 module Llm::FeatureRouter
   class UnknownFeatureError < StandardError; end
 
-  CAPTAIN_V2_ASSISTANT_MODEL = 'gpt-5.4-nano-2026-03-17'.freeze
+  CAPTAIN_V2_ASSISTANT_MODEL = Llm::Models.default_model_for('assistant').freeze
 
   class << self
     def resolve(feature:, account: nil)
@@ -26,8 +26,8 @@ module Llm::FeatureRouter
     end
 
     def standard_openai_endpoint?
-      endpoint = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_ENDPOINT')&.value
-      endpoint.blank? || endpoint.chomp('/') == LlmConstants::OPENAI_API_ENDPOINT
+      endpoint = LlmConstants.normalized_api_base
+      endpoint.nil? || endpoint == LlmConstants::OPENAI_API_ENDPOINT
     end
 
     private

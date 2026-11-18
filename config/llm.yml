@@ -28,10 +28,6 @@ models:
     provider: openai
     display_name: 'GPT-5 Codex'
     credit_multiplier: 5
-  gpt-5-2025-08-07:
-    provider: openai
-    display_name: 'GPT-5 (2025-08-07)'
-    credit_multiplier: 5
   gpt-5-chat-latest:
     provider: openai
     display_name: 'GPT-5 Chat (Latest)'
@@ -65,10 +61,6 @@ models:
     credit_multiplier: 2
 
   # ── o-series Reasoning (250K token group, credit_multiplier: 4) ───────────
-  o3-2025-04-16:
-    provider: openai
-    display_name: 'o3 (2025-04-16)'
-    credit_multiplier: 4
   o1-2024-12-17:
     provider: openai
     display_name: 'o1 (2024-12-17)'
@@ -84,29 +76,9 @@ models:
     provider: openai
     display_name: 'GPT-5.4 Mini (2026-03-17)'
     credit_multiplier: 1
-  gpt-5.4-nano-2026-03-17:
-    provider: openai
-    display_name: 'GPT-5.4 Nano (2026-03-17)'
-    credit_multiplier: 1
   gpt-5.1-codex-mini:
     provider: openai
     display_name: 'GPT-5.1 Codex Mini'
-    credit_multiplier: 1
-  gpt-5-mini-2025-08-07:
-    provider: openai
-    display_name: 'GPT-5 Mini (2025-08-07)'
-    credit_multiplier: 1
-  gpt-5-nano-2025-08-07:
-    provider: openai
-    display_name: 'GPT-5 Nano (2025-08-07)'
-    credit_multiplier: 1
-  gpt-5-mini:
-    provider: openai
-    display_name: 'GPT-5 Mini'
-    credit_multiplier: 1
-  gpt-5-nano:
-    provider: openai
-    display_name: 'GPT-5 Nano'
     credit_multiplier: 1
 
   # ── o-series Mini / Codex Mini (10M token group, credit_multiplier: 2) ─────
@@ -164,26 +136,21 @@ models:
     credit_multiplier: 1
 
 features:
-  # conversation_completion: upstream v4.17.0 internal feature, routed to gpt-5.4-nano
+  # conversation_completion: upstream v4.17.0 internal feature
   conversation_completion:
     models:
       [
-        gpt-5.4-nano-2026-03-17,
         gpt-6-luna,
-        gpt-5-mini,
         gpt-5.1,
         gpt-5.2,
       ]
-    default: gpt-5.4-nano-2026-03-17
+    default: gpt-6-luna
     internal: true
   # Editor: lightweight models for quick in-editor suggestions
   editor:
     models:
       [
-        gpt-5.4-nano-2026-03-17,
         gpt-6-luna,
-        gpt-5-mini,
-        gpt-5-mini-2025-08-07,
         gpt-5.4-mini-2026-03-17,
         gpt-5.1,
         gpt-5.1-2025-11-13,
@@ -194,17 +161,14 @@ features:
         gemini-3-flash,
         gemini-3-pro,
       ]
-    default: gpt-5.4-nano-2026-03-17
+    default: gpt-6-luna
 
   # Assistant: mid-to-high tier models for smarter replies
   assistant:
     reasoning_effort: none
     models:
       [
-        gpt-5.4-nano-2026-03-17,
         gpt-6-luna,
-        gpt-5-mini,
-        gpt-5-mini-2025-08-07,
         gpt-5.1,
         gpt-5.1-2025-11-13,
         gpt-5.1-codex,
@@ -213,24 +177,20 @@ features:
         gpt-5.4-2026-03-05,
         gpt-5-chat-latest,
         o4-mini-2025-04-16,
-        o3-2025-04-16,
         claude-haiku-5-5,
         claude-sonnet-5-5,
         claude-opus-5-5,
         gemini-3-flash,
         gemini-3-pro,
       ]
-    default: gpt-5.4-nano-2026-03-17
+    default: gpt-6-luna
 
   # Copilot: same as assistant, full model range for agent use
   copilot:
     reasoning_effort: none
     models:
       [
-        gpt-5.4-nano-2026-03-17,
         gpt-6-luna,
-        gpt-5-mini,
-        gpt-5-mini-2025-08-07,
         gpt-5.1-codex-mini,
         codex-mini-latest,
         gpt-5.1,
@@ -242,24 +202,21 @@ features:
         gpt-5.4-2026-03-05,
         gpt-5-chat-latest,
         o4-mini-2025-04-16,
-        o3-2025-04-16,
         claude-haiku-5-5,
         claude-sonnet-5-5,
         claude-opus-5-5,
         gemini-3-flash,
         gemini-3-pro,
       ]
-    default: gpt-5.4-nano-2026-03-17
+    default: gpt-6-luna
 
-  # copilot_workflows: upstream v4.19.1 internal feature behind the copilot_workflows account flag, routed to gpt-5.4-nano.
+  # copilot_workflows: upstream v4.19.1 internal feature behind the copilot_workflows account flag.
   # Reasoning stays off: upstream's eval found medium effort slower with no gain.
   copilot_workflows:
     reasoning_effort: none
     models:
       [
-        gpt-5.4-nano-2026-03-17,
         gpt-6-luna,
-        gpt-5-mini,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
@@ -267,7 +224,7 @@ features:
         gemini-3-flash,
         gemini-3-pro,
       ]
-    default: gpt-5.4-nano-2026-03-17
+    default: gpt-6-luna
     internal: true
 
   # FAQ / content generation (upstream v4.16.0 features)
@@ -275,9 +232,7 @@ features:
     reasoning_effort: medium
     models:
       [
-        gpt-5.4-nano-2026-03-17,
         gpt-6-luna,
-        gpt-5-mini,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
@@ -286,13 +241,11 @@ features:
         gemini-3-flash,
         gemini-3-pro,
       ]
-    default: gpt-5.4-nano-2026-03-17
+    default: gpt-6-luna
   conversation_faq_generation:
     models:
       [
-        gpt-5.4-nano-2026-03-17,
         gpt-6-luna,
-        gpt-5-mini,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
@@ -301,14 +254,12 @@ features:
         gemini-3-flash,
         gemini-3-pro,
       ]
-    default: gpt-5.4-nano-2026-03-17
-  # conversation_faq_matching: upstream v4.16.2 new feature, routed to gpt-5.4-nano
+    default: gpt-6-luna
+  # conversation_faq_matching: upstream v4.16.2 new feature
   conversation_faq_matching:
     models:
       [
-        gpt-5.4-nano-2026-03-17,
         gpt-6-luna,
-        gpt-5-mini,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
@@ -317,16 +268,14 @@ features:
         gemini-3-flash,
         gemini-3-pro,
       ]
-    default: gpt-5.4-nano-2026-03-17
+    default: gpt-6-luna
   pdf_faq_generation:
-    models: [gpt-5.4-nano-2026-03-17, gpt-6-luna, gpt-5-mini, gpt-5.1, gpt-5.2]
-    default: gpt-5.4-nano-2026-03-17
+    models: [gpt-6-luna, gpt-5.1, gpt-5.2]
+    default: gpt-6-luna
   help_center_article_generation:
     models:
       [
-        gpt-5.4-nano-2026-03-17,
         gpt-6-luna,
-        gpt-5-mini,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
@@ -335,38 +284,34 @@ features:
         gemini-3-flash,
         gemini-3-pro,
       ]
-    default: gpt-5.4-nano-2026-03-17
+    default: gpt-6-luna
   onboarding_content_generation:
     models:
       [
-        gpt-5.4-nano-2026-03-17,
         gpt-6-luna,
-        gpt-5-mini,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
         claude-sonnet-5-5,
       ]
-    default: gpt-5.4-nano-2026-03-17
+    default: gpt-6-luna
   help_center_query_translation:
-    models: [gpt-5.4-nano-2026-03-17, gpt-6-luna, gpt-5-mini, claude-haiku-5-5]
-    default: gpt-5.4-nano-2026-03-17
-  # message_translation / language_detection: upstream v4.19.0 auto translation, routed to gpt-5.4-nano
+    models: [gpt-6-luna, claude-haiku-5-5]
+    default: gpt-6-luna
+  # message_translation / language_detection: upstream v4.19.0 auto translation
   message_translation:
     models:
       [
-        gpt-5.4-nano-2026-03-17,
         gpt-6-luna,
         gpt-6.1-sol,
         gpt-5.2,
-        gpt-5-mini,
         claude-haiku-5-5,
         claude-sonnet-5-5,
       ]
-    default: gpt-5.4-nano-2026-03-17
+    default: gpt-6-luna
   language_detection:
-    models: [gpt-5.4-nano-2026-03-17, gpt-5-mini, gpt-5-nano, claude-haiku-5-5]
-    default: gpt-5.4-nano-2026-03-17
+    models: [gpt-6-luna, claude-haiku-5-5]
+    default: gpt-6-luna
 
   audio_transcription:
     models: [gpt-transcribe]

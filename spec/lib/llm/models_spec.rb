@@ -26,22 +26,22 @@ RSpec.describe Llm::Models do
       end
     end
 
-    it 'resolves the nano default for FAQ generation features' do
-      expect(described_class.default_model_for('document_faq_generation')).to eq('gpt-5.4-nano-2026-03-17')
-      expect(described_class.default_model_for('conversation_faq_generation')).to eq('gpt-5.4-nano-2026-03-17')
-      expect(described_class.default_model_for('conversation_faq_matching')).to eq('gpt-5.4-nano-2026-03-17')
+    it 'resolves the Luna default for FAQ generation features' do
+      expect(described_class.default_model_for('document_faq_generation')).to eq('gpt-6-luna')
+      expect(described_class.default_model_for('conversation_faq_generation')).to eq('gpt-6-luna')
+      expect(described_class.default_model_for('conversation_faq_matching')).to eq('gpt-6-luna')
     end
 
-    it 'uses GPT-5.4 Nano for Copilot workflows' do
-      expect(described_class.default_model_for('copilot')).to eq('gpt-5.4-nano-2026-03-17')
-      expect(described_class.default_model_for('copilot_workflows')).to eq('gpt-5.4-nano-2026-03-17')
+    it 'uses GPT-6 Luna for Copilot workflows' do
+      expect(described_class.default_model_for('copilot')).to eq('gpt-6-luna')
+      expect(described_class.default_model_for('copilot_workflows')).to eq('gpt-6-luna')
       expect(described_class.features.dig('copilot_workflows', 'reasoning_effort')).to eq('none')
       expect(described_class.internal_feature?('copilot_workflows')).to be(true)
     end
 
     it 'offers only supported OpenAI models for conversation completion' do
       expect(described_class.models_for('conversation_completion')).to eq(
-        %w[gpt-5.4-nano-2026-03-17 gpt-6-luna gpt-5-mini gpt-5.1 gpt-5.2]
+        %w[gpt-6-luna gpt-5.1 gpt-5.2]
       )
     end
   end
@@ -63,10 +63,10 @@ RSpec.describe Llm::Models do
     it 'returns model metadata for a feature' do
       config = described_class.feature_config('editor')
 
-      expect(config[:default]).to eq('gpt-5.4-nano-2026-03-17')
+      expect(config[:default]).to eq('gpt-6-luna')
       expect(config[:models].first).to include(
-        id: 'gpt-5.4-nano-2026-03-17',
-        display_name: 'GPT-5.4 Nano (2026-03-17)',
+        id: 'gpt-6-luna',
+        display_name: 'GPT-6 Luna',
         provider: 'openai',
         credit_multiplier: 1
       )

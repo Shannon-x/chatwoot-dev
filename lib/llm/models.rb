@@ -1,5 +1,11 @@
 module Llm::Models
   CONFIG = YAML.load_file(Rails.root.join('config/llm.yml')).freeze
+  RETIRED_TEXT_MODELS = %w[
+    gpt-5 gpt-5-2025-08-07 gpt-5-mini gpt-5-mini-2025-08-07 gpt-5-nano gpt-5-nano-2025-08-07
+    gpt-5-pro gpt-5-pro-2025-10-06 o3 o3-2025-04-16 o3-pro o3-pro-2025-06-10
+    gpt-5.4-nano gpt-5.4-nano-2026-03-17
+  ].freeze
+  RETIRED_TRANSCRIPTION_MODELS = %w[gpt-4o-mini-transcribe whisper-1].freeze
 
   class << self
     def providers = CONFIG.fetch('providers')
@@ -25,8 +31,14 @@ module Llm::Models
       features.dig(feature.to_s, 'models') || []
     end
 
+    def replacement_for_retired_model(model)
+      return default_model_for('audio_transcription') if RETIRED_TRANSCRIPTION_MODELS.include?(model)
+      return default_model_for('conversation_completion') if model.to_s.start_with?('gpt-4') || RETIRED_TEXT_MODELS.include?(model)
+    end
+
     def valid_model_for?(feature, model_name)
       return true if models_for(feature).include?(model_name.to_s)
+      return false if replacement_for_retired_model(model_name)
 
       # Allow any model whose name matches a known OpenAI prefix so that newly
       # released models (e.g. gpt-5.5-2026-xx-xx) work without editing llm.yml.

@@ -1,17 +1,5 @@
-# OpenAI shuts down the GPT-4 series on January 14, 2027 (gpt-4.1-nano on October 23, 2026)
-# and its older transcription models on February 26, 2027.
 class Migration::ReplaceRetiredCaptainModelsJob < ApplicationJob
   queue_as :async_database_migration
-
-  TEXT_MODEL = Llm::Config::DEFAULT_MODEL
-  TRANSCRIPTION_MODEL = 'gpt-transcribe'.freeze
-  RETIRED_MODELS = {
-    'gpt-4.1' => TEXT_MODEL,
-    'gpt-4.1-mini' => TEXT_MODEL,
-    'gpt-4.1-nano' => TEXT_MODEL,
-    'gpt-4o-mini-transcribe' => TRANSCRIPTION_MODEL,
-    'whisper-1' => TRANSCRIPTION_MODEL
-  }.freeze
 
   def perform
     replace_installation_model
@@ -21,26 +9,20 @@ class Migration::ReplaceRetiredCaptainModelsJob < ApplicationJob
   private
 
   def replace_installation_model
-    # A custom endpoint may serve its own deployment under a GPT-4 name, so leave that to the operator.
+    # A custom endpoint may serve its own deployment under a retired model name, so leave that to the operator.
     return unless Llm::FeatureRouter.standard_openai_endpoint?
 
     config = InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_MODEL')
-    config.update!(value: TEXT_MODEL) if config&.value.to_s.start_with?('gpt-4')
+    config.update!(value: Llm::Config::DEFAULT_MODEL) if Llm::Models.replacement_for_retired_model(config&.value)
   end
 
   def replace_account_models
     Account.find_each do |account|
       models = account.captain_models
-      next unless models&.values&.any? { |model| replacement_for(model) != model }
-
-      account.update!(captain_models: models.transform_values { |model| replacement_for(model) })
+      replacements = models&.transform_values { |model| Llm::Models.replacement_for_retired_model(model) || model }
+      account.update!(captain_models: replacements) if replacements != models
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error("[retired-captain-models] account_id=#{account.id} #{e.record.errors.full_messages.to_sentence}")
     end
-  end
-
-  # This fork also offered dated GPT-4 snapshots (gpt-4.1-nano-2025-04-14, gpt-4o-2024-11-20, ...), so any GPT-4 model is retired.
-  def replacement_for(model)
-    RETIRED_MODELS.fetch(model) { model.to_s.start_with?('gpt-4') ? TEXT_MODEL : model }
   end
 end

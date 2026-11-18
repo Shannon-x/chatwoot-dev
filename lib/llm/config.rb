@@ -1,7 +1,7 @@
 require 'ruby_llm'
 
 module Llm::Config
-  DEFAULT_MODEL = 'gpt-5.4-nano-2026-03-17'.freeze
+  DEFAULT_MODEL = LlmConstants::DEFAULT_MODEL
 
   # Ordered list of candidate paths for the custom model registry.
   # The first path that resolves to an existing file wins.

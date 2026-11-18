@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module LlmConstants
-  DEFAULT_MODEL = 'gpt-5.4-nano-2026-03-17'
+  DEFAULT_MODEL = Llm::Models.default_model_for('conversation_completion').freeze
   DEFAULT_EMBEDDING_MODEL = 'text-embedding-3-small'
 
   OPENAI_API_ENDPOINT = 'https://api.openai.com'

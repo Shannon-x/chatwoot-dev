@@ -158,6 +158,14 @@ RSpec.describe Llm::Providers::Anthropic do
 
   context 'when history replays Claude thinking blocks' do
     let(:drop_block_thinking) { { 'type' => 'adaptive', 'block_binding' => { 'prefix_mismatch_behavior' => 'drop_block' } } }
+    let(:restored_model) { 'claude-haiku-5-5' }
+    let(:restored_chat) do
+      chat = context.chat(model: restored_model)
+      producer = RubyLLM::Accounting::Usage::Entry.new(operation: :chat, provider: 'anthropic', model: restored_model, status: :succeeded)
+      chat.add_message(role: :user, content: 'Hi')
+      chat.add_message(role: :assistant, content: 'Hello!', thinking: { text: 'Greet back.', signature: 'sig-0' }, usage_entries: [producer])
+      chat
+    end
     let(:responses) do
       [
         {
@@ -203,26 +211,24 @@ RSpec.describe Llm::Providers::Anthropic do
     end
 
     it 'covers history restored from another agent' do
-      chat = context.chat(model: 'claude-haiku-5-5')
-      chat.add_message(role: :user, content: 'Hi')
-      chat.add_message(role: :assistant, content: 'Hello!', thinking: { text: 'Greet back.', signature: 'sig-0' })
-      chat.ask('Weather in Paris?')
+      restored_chat.ask('Weather in Paris?')
 
       body = requests.first[:body]
       expect(body['thinking']).to eq(drop_block_thinking)
       expect(body['messages'].second['content'].first).to include('type' => 'thinking', 'signature' => 'sig-0')
     end
 
-    it 'removes replayed blocks for a model running without thinking' do
-      chat = context.chat(model: 'claude-sonnet-4-5')
-      chat.add_message(role: :user, content: 'Hi')
-      chat.add_message(role: :assistant, content: 'Hello!', thinking: { text: 'Greet back.', signature: 'sig-0' })
-      chat.ask('Weather in Paris?')
+    context 'when the model runs without thinking' do
+      let(:restored_model) { 'claude-sonnet-4-5' }
 
-      body = requests.first[:body]
-      expect(body).not_to include('thinking')
-      expect(body['messages'].second['content'].pluck('type')).to eq(['text'])
-      expect(requests.first[:headers]).not_to include('Anthropic-Beta')
+      it 'removes replayed blocks' do
+        restored_chat.ask('Weather in Paris?')
+
+        body = requests.first[:body]
+        expect(body).not_to include('thinking')
+        expect(body['messages'].second['content'].pluck('type')).to eq(['text'])
+        expect(requests.first[:headers]).not_to include('Anthropic-Beta')
+      end
     end
 
     it 'logs the blocks Claude dropped' do
