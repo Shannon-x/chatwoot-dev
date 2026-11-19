@@ -76,6 +76,15 @@ RSpec.describe '/api/v1/widget/conversations/toggle_typing', type: :request do
       expect(contact.reload).to have_attributes(email: 'contact-email@chatwoot.com', phone_number: '+919745313456', name: 'contact-name')
     end
 
+    it 'leaves anonymous widget messages without a verified sender digest' do
+      message = { content: 'Guest', additional_attributes: { widget_sender_source_digest: 'typed' } }
+      post api_v1_widget_conversations_url,
+           params: { website_token: web_widget.website_token, message: message },
+           headers: { 'X-Auth-Token' => token }, as: :json
+      expect(response).to have_http_status(:success)
+      expect(Message.where(content: 'Guest').last!.additional_attributes).not_to have_key('widget_sender_source_digest')
+    end
+
     it 'creates a conversation with correct message and custom attributes' do
       post '/api/v1/widget/conversations',
            headers: { 'X-Auth-Token' => token },

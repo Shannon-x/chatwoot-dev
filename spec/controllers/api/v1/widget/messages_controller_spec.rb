@@ -70,6 +70,18 @@ RSpec.describe '/api/v1/widget/messages', type: :request do
   end
 
   describe 'POST /api/v1/widget/messages' do
+    it 'records the verified sending browser when another browser created the shared conversation' do
+      contact_inbox.update!(hmac_verified: true)
+      other_browser = create(:contact_inbox, contact: contact, inbox: web_widget.inbox, hmac_verified: true)
+      other_token = Widget::TokenService.new(payload: { source_id: other_browser.source_id, inbox_id: web_widget.inbox.id }).generate_token
+      post api_v1_widget_messages_url, params: { website_token: web_widget.website_token, message: { content: 'From my second browser' } },
+                                       headers: { 'X-Auth-Token' => other_token }, as: :json
+
+      expect(response).to have_http_status(:success)
+      message = conversation.messages.find_by!(content: 'From my second browser')
+      expect(message.additional_attributes.fetch('widget_sender_source_digest')).to eq(Digest::SHA256.hexdigest(other_browser.source_id))
+    end
+
     context 'when the conversation is resolved and the inbox does not allow messages after resolved' do
       before do
         web_widget.inbox.update!(allow_messages_after_resolved: false)

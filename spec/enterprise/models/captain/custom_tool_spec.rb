@@ -746,6 +746,11 @@ RSpec.describe Captain::CustomTool, type: :model do
         expect(headers['X-Chatwoot-Account-Id']).to eq(account.id.to_s)
       end
 
+      it 'only sends a triggering message ID for a reply to a specific message' do
+        expect(tool.build_metadata_headers(state)).not_to have_key('X-Chatwoot-Responding-To-Message-Id')
+        expect(tool.build_metadata_headers(state.merge(responding_to_message_id: 42))['X-Chatwoot-Responding-To-Message-Id']).to eq('42')
+      end
+
       it 'handles missing contact inbox gracefully' do
         state[:contact_inbox] = nil
 

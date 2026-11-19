@@ -81,6 +81,7 @@ module Concerns::Toolable
     headers['X-Chatwoot-Account-Id'] = state[:account_id].to_s if state[:account_id]
     headers['X-Chatwoot-Assistant-Id'] = state[:assistant_id].to_s if state[:assistant_id]
     headers['X-Chatwoot-Tool-Slug'] = slug if slug.present?
+    headers['X-Chatwoot-Responding-To-Message-Id'] = state[:responding_to_message_id].to_s if state[:responding_to_message_id]
   end
 
   def add_conversation_headers(headers, conversation)

@@ -85,6 +85,8 @@ class Api::V1::Widget::BaseController < ApplicationController
       content_attributes: {
         in_reply_to: permitted_params[:message][:reply_to]
       },
+      # Verified browsers for one contact can post in the same conversation. Record the sender of this request.
+      additional_attributes: @contact_inbox.hmac_verified? ? { widget_sender_source_digest: Digest::SHA256.hexdigest(@contact_inbox.source_id) } : {},
       echo_id: permitted_params[:message][:echo_id],
       message_type: :incoming
     }
