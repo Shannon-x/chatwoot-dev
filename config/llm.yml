@@ -1,10 +1,6 @@
 providers:
   openai:
     display_name: 'OpenAI'
-  anthropic:
-    display_name: 'Anthropic'
-  gemini:
-    display_name: 'Gemini'
 
 models:
   # ── GPT-5.x Flagship (250K token group, credit_multiplier: 5) ─────────────
@@ -53,8 +49,19 @@ models:
     display_name: 'GPT-6 Luna'
     credit_multiplier: 1
     reasoning_effort: none
-    # models.dev lists temperature as unsupported, but Luna accepts it at reasoning effort none.
+    # Luna accepts temperature only at reasoning effort none. Kept explicit because models.dev has listed it as unsupported before.
     temperature: true
+  # GPT-6 models default to medium reasoning effort, which rejects temperature, so features without their own effort run them at none.
+  gpt-6-sol:
+    provider: openai
+    display_name: 'GPT-6 Sol'
+    credit_multiplier: 2
+    reasoning_effort: none
+  gpt-6.1-terra:
+    provider: openai
+    display_name: 'GPT-6.1 Terra'
+    credit_multiplier: 1
+    reasoning_effort: none
   gpt-6.1-sol:
     provider: openai
     display_name: 'GPT-6.1 Sol'
@@ -141,6 +148,8 @@ features:
     models:
       [
         gpt-6-luna,
+        gpt-6.1-terra,
+        gpt-6-sol,
         gpt-5.1,
         gpt-5.2,
       ]
@@ -152,6 +161,8 @@ features:
       [
         gpt-6-luna,
         gpt-5.4-mini-2026-03-17,
+        gpt-6.1-terra,
+        gpt-6-sol,
         gpt-5.1,
         gpt-5.1-2025-11-13,
         gpt-5.2,
@@ -169,6 +180,8 @@ features:
     models:
       [
         gpt-6-luna,
+        gpt-6.1-terra,
+        gpt-6-sol,
         gpt-5.1,
         gpt-5.1-2025-11-13,
         gpt-5.1-codex,
@@ -193,6 +206,8 @@ features:
         gpt-6-luna,
         gpt-5.1-codex-mini,
         codex-mini-latest,
+        gpt-6.1-terra,
+        gpt-6-sol,
         gpt-5.1,
         gpt-5.1-2025-11-13,
         gpt-5.1-codex,
@@ -217,6 +232,8 @@ features:
     models:
       [
         gpt-6-luna,
+        gpt-6.1-terra,
+        gpt-6-sol,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
@@ -233,6 +250,8 @@ features:
     models:
       [
         gpt-6-luna,
+        gpt-6.1-terra,
+        gpt-6-sol,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
@@ -246,6 +265,8 @@ features:
     models:
       [
         gpt-6-luna,
+        gpt-6.1-terra,
+        gpt-6-sol,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
@@ -260,6 +281,8 @@ features:
     models:
       [
         gpt-6-luna,
+        gpt-6.1-terra,
+        gpt-6-sol,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
@@ -270,12 +293,14 @@ features:
       ]
     default: gpt-6-luna
   pdf_faq_generation:
-    models: [gpt-6-luna, gpt-5.1, gpt-5.2]
+    models: [gpt-6-luna, gpt-6.1-terra, gpt-6-sol, gpt-5.1, gpt-5.2]
     default: gpt-6-luna
   help_center_article_generation:
     models:
       [
         gpt-6-luna,
+        gpt-6.1-terra,
+        gpt-6-sol,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
@@ -289,6 +314,8 @@ features:
     models:
       [
         gpt-6-luna,
+        gpt-6.1-terra,
+        gpt-6-sol,
         gpt-5.1,
         gpt-5.2,
         claude-haiku-5-5,
@@ -303,6 +330,8 @@ features:
     models:
       [
         gpt-6-luna,
+        gpt-6.1-terra,
+        gpt-6-sol,
         gpt-6.1-sol,
         gpt-5.2,
         claude-haiku-5-5,
