@@ -366,6 +366,54 @@ RSpec.describe 'Conversations API', type: :request do
         expect(JSON.parse(response.body, symbolize_names: true)[:id]).to eq(conversation.display_id)
       end
 
+      context 'when a service requests the latest widget sender proof' do
+        let(:url) { "/api/v1/accounts/#{account.id}/conversations/#{conversation.display_id}" }
+        let(:proof_params) { { include_latest_widget_message_proof: '1' } }
+        let(:digest) { Digest::SHA256.hexdigest('verified-browser') }
+        let!(:incoming) do
+          create(:message, account: account, conversation: conversation, sender: conversation.contact, message_type: :incoming,
+                           additional_attributes: { widget_sender_source_digest: digest })
+        end
+
+        it 'returns the minimal proof after later system activity and a welcome message' do
+          account.enable_features!('api_and_webhooks')
+          create(:message, account: account, conversation: conversation, message_type: :outgoing)
+          create(:message, account: account, conversation: conversation, message_type: :activity)
+          get url, headers: { api_access_token: administrator.access_token.token }, params: proof_params, as: :json
+
+          expect(response).to have_http_status(:success)
+          expect(response.parsed_body['latest_widget_message_proof']).to eq(
+            'id' => incoming.id, 'contact_id' => conversation.contact_id, 'conversation_id' => conversation.display_id, 'source_digest' => digest
+          )
+        end
+
+        it 'supersedes an earlier verified turn even if the new turn has no browser proof' do
+          create(:message, account: account, conversation: conversation, sender: conversation.contact, message_type: :incoming,
+                           created_at: incoming.created_at)
+          get url, headers: administrator.create_new_auth_token, params: proof_params, as: :json
+
+          expect(response).to have_http_status(:success)
+          expect(response.parsed_body['latest_widget_message_proof']).to be_nil
+        end
+
+        it 'withholds the proof when the newest incoming sender differs from the current conversation contact' do
+          other_contact = create(:contact, account: account)
+          create(:message, account: account, conversation: conversation, sender: other_contact, message_type: :incoming,
+                           additional_attributes: { widget_sender_source_digest: digest })
+          get url, headers: administrator.create_new_auth_token, params: proof_params, as: :json
+
+          expect(response).to have_http_status(:success)
+          expect(response.parsed_body['latest_widget_message_proof']).to be_nil
+        end
+
+        it 'omits the proof for ordinary show and denies unauthorized requests for it' do
+          get url, headers: administrator.create_new_auth_token, as: :json
+          expect(response.parsed_body).not_to have_key('latest_widget_message_proof')
+          get url, headers: agent.create_new_auth_token, params: proof_params, as: :json
+          expect(response).to have_http_status(:unauthorized)
+        end
+      end
+
       it 'shows the conversation if you are an agent with access to inbox' do
         create(:inbox_member, user: agent, inbox: conversation.inbox)
         get "/api/v1/accounts/#{account.id}/conversations/#{conversation.display_id}",
