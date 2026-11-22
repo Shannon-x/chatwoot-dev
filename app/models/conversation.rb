@@ -170,6 +170,22 @@ class Conversation < ApplicationRecord
     messages.where(account_id: account_id)&.incoming&.last
   end
 
+  def latest_widget_message_proof
+    return unless inbox.web_widget?
+
+    # Select the newest customer turn before checking its identity. An unsigned
+    # message from another browser must supersede an older signed one.
+    latest = messages.incoming.where(account_id: account_id, private: false).reorder(created_at: :desc, id: :desc)
+                     .pick(:id, :sender_type, :sender_id, :additional_attributes)
+    message_id, sender_type, sender_id, attributes = latest
+    return unless sender_type == 'Contact' && sender_id == contact_id
+
+    digest = attributes&.[]('widget_sender_source_digest')
+    return unless digest.is_a?(String) && digest.match?(/\A[0-9a-f]{64}\z/)
+
+    { id: message_id, conversation_id: display_id, contact_id: contact_id, source_digest: digest }
+  end
+
   def toggle_status
     # FIXME: implement state machine with aasm
     self.status = open? ? :resolved : :open
