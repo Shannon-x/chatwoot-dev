@@ -59,9 +59,16 @@ module Llm::Config
     # RubyLLM may have auto-created the singleton from the gem's bundled
     # models.json before configure ran, so we replace it explicitly here.
     def load_model_registry
-      RubyLLM.models.load_from_json(custom_model_registry_file) if custom_model_registry_file
-      # Models#all returns a filtered copy, so append to the backing list for the Claude entries to be found.
-      RubyLLM.models.all_including_unlisted.concat(RubyLLM::Models::Registry.read(ANTHROPIC_MODEL_REGISTRY_FILE))
+      models = RubyLLM.models.load_from_json(custom_model_registry_file).all_including_unlisted
+      RubyLLM::Models::Registry.read(ANTHROPIC_MODEL_REGISTRY_FILE).each do |claude_model|
+        existing = models.find { |model| model.provider == claude_model.provider && model.id == claude_model.id }
+        if existing
+          # Keep upstream pricing and capabilities, and apply Captain's Messages API settings.
+          existing.metadata.merge!(claude_model.metadata)
+        else
+          models << claude_model
+        end
+      end
     end
 
     def configure_anthropic(config)

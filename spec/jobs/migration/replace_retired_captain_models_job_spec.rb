@@ -10,7 +10,7 @@ RSpec.describe Migration::ReplaceRetiredCaptainModelsJob, type: :job do
   it 'moves saved retired models to the default text model and keeps allowed ones' do
     account.captain_models = {
       'editor' => 'gpt-5-mini',
-      'copilot' => 'gpt-4.1',
+      'copilot_workflows' => 'gpt-4.1',
       'assistant' => 'gpt-5.2',
       'document_faq_generation' => 'gpt-5.4-nano-2026-03-17'
     }
@@ -21,7 +21,7 @@ RSpec.describe Migration::ReplaceRetiredCaptainModelsJob, type: :job do
 
     expect(account.reload.captain_models).to eq(
       'editor' => Llm::Config::DEFAULT_MODEL,
-      'copilot' => Llm::Config::DEFAULT_MODEL,
+      'copilot_workflows' => Llm::Config::DEFAULT_MODEL,
       'assistant' => 'gpt-5.2',
       'document_faq_generation' => 'gpt-6-luna'
     )
